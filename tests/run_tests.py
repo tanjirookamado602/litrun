@@ -25,6 +25,8 @@ TEST_MODULES = [
     "tests.python.test_server",
     "tests.python.test_see",
     "tests.python.test_tools",
+    "tests.python.test_hear",
+    "tests.python.test_ros2",
 ]
 
 

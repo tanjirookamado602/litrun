@@ -226,6 +226,44 @@ Try the interactive [Edge Memory Calculator](https://assassinaj602.github.io/lit
 
 ---
 
+## 🎙️ Edge Audio Perception & Voice-to-Action (`litrun hear`)
+
+Capture voice instructions directly from USB microphones, I2S mic arrays, or WAV audio files and pipe speech recognition into autonomous edge actions:
+
+```bash
+# Direct transcription:
+litrun hear sample.wav
+
+# Live mic capture piped straight into autonomous GPIO execution:
+litrun hear --mic --pipe-run --tools
+```
+
+```text
+litrun hear: "Turn on the cooling fan connected to GPIO pin 18"
+→ Routing transcription to litrun autonomous engine...
+litrun: {"tool": "gpio_write", "parameters": {"pin": 18, "value": 1}}
+⚡ Hardware Action: Executing gpio_write({"pin": 18, "value": 1})
+✓ Hardware Result: {"success": true, "pin": 18, "state": 1}
+litrun: I have activated the cooling fan on GPIO pin 18.
+```
+
+---
+
+## 🤖 ROS 2 (Robot Operating System) Integration
+
+Deploy deterministic on-device LLM reasoning and velocity commands onto ROS 2 robotics platforms (TurtleBot 4, autonomous rovers):
+
+```bash
+# Launch native litrun ROS 2 node
+ros2 launch litrun_ros litrun_agent.launch.py
+```
+
+The node subscribes to `/robot/task_query` (`std_msgs/String`), evaluates tasks through `litrun` with strict GBNF JSON schemas, and publishes decisions to `/robot/action_decision` and `/cmd_vel` (`geometry_msgs/Twist`).
+
+See the complete [ROS 2 Package Guide](integrations/ros2/README.md).
+
+---
+
 ## 📊 Hardware Support Matrix
 
 | Board / SBC | SoC Architecture | Vector Extensions / NPU | Default Speed | Phase |
