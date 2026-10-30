@@ -12,3 +12,4 @@ bashio::log.info "Port: ${PORT}"
 
 # Execute litrun REST API daemon
 exec litrun serve --host 0.0.0.0 --port "${PORT}" --model "${MODEL}" --quant "${QUANT}" --threads "${THREADS}"
+

@@ -130,3 +130,4 @@ def execute_embedded_tool(tool_name: str, parameters: Dict[str, Any]) -> Dict[st
             "success": False,
             "error": f"Unknown tool '{tool_name}'. Available: gpio_write, gpio_read, get_hardware_telemetry",
         }
+

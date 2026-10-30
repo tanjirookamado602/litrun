@@ -6,3 +6,4 @@
 Ultra-lightweight local LLM & Vision inference engine with active hardware memory protection for Home Assistant OS and Supervised installations.
 
 See [DOCS.md](DOCS.md) for full configuration details and Assist integration guide.
+

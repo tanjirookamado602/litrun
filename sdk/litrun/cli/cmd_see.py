@@ -149,3 +149,4 @@ def see_cmd(input_target: str, prompt_text: str, model_id: str, preferred_quant:
                 os.remove(image_file)
             except Exception:
                 pass
+

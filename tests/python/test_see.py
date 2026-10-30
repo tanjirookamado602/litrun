@@ -43,3 +43,4 @@ def test_cli_see_custom_image():
     finally:
         if os.path.exists(test_img):
             os.remove(test_img)
+

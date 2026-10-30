@@ -66,3 +66,4 @@ Run ultra-lightweight, hardware-accelerated local LLMs (Qwen 2.5, SmolLM2, Llama
 | **Raspberry Pi 5 (4GB/8GB)** | `llama-3.2-1b` (Q4_K_M) | ~890 MB | ~18 tok/s |
 | **Home Assistant Yellow / CM4** | `qwen2.5-0.5b` (Q4_K_M) | ~490 MB | ~12 tok/s |
 | **Intel N100 / x86 Mini PC** | `qwen2.5-1.5b` (Q4_K_M) | ~1.2 GB | ~35 tok/s |
+

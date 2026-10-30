@@ -23,3 +23,4 @@ RUN chmod a+x /etc/services.d/litrun/run
 
 WORKDIR /data
 EXPOSE 8080
+

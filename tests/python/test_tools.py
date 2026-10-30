@@ -105,3 +105,4 @@ def test_cli_run_with_tools():
     assert "⚡ Hardware Action:" in result.output
     assert "✓ Hardware Result:" in result.output
     assert "gpio_write" in result.output
+
