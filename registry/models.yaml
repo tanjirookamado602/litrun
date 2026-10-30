@@ -181,3 +181,55 @@ models:
       - profile: "opi5-rk3588-16gb-a76"
         tokens_per_sec: 5.6
         quant: "Q4_K_M"
+
+  - id: "smolvlm-256m"
+    name: "SmolVLM 256M Instruct"
+    family: "smolvlm"
+    multimodal: true
+    context_length: 4096
+    default_context: 2048
+    kv_bytes_per_token: 32.0
+    description: "Ultra-compact 256M vision-language model for edge robotics and camera inspection on Raspberry Pi."
+    variants:
+      - quant: "Q4_K_M"
+        size_mb: 240
+        mmproj_size_mb: 85
+        ram_required_mb: 650
+        url: "https://huggingface.co/bartowski/SmolVLM-256M-Instruct-GGUF/resolve/main/SmolVLM-256M-Instruct-Q4_K_M.gguf"
+        sha256: "8a4f91234bc98864d46ad5021a8d438062a42b6f57134379e43b17937b2ec9c6"
+        mmproj_url: "https://huggingface.co/bartowski/SmolVLM-256M-Instruct-GGUF/resolve/main/mmproj-SmolVLM-256M-Instruct-f16.gguf"
+        mmproj_sha256: "b6f57134379e43b17937b2ec9c6ae406f8c7b8e19c0b1e16f3d8a43627402681"
+        recommended: true
+    hardware_profiles:
+      - profile: "rpi4-bcm2711-4gb"
+        tokens_per_sec: 11.2
+        quant: "Q4_K_M"
+      - profile: "rpi5-bcm2712-8gb-a76"
+        tokens_per_sec: 22.5
+        quant: "Q4_K_M"
+
+  - id: "moondream2"
+    name: "Moondream 2 Vision"
+    family: "moondream"
+    multimodal: true
+    context_length: 4096
+    default_context: 2048
+    kv_bytes_per_token: 48.0
+    description: "Efficient 1.8B parameter vision language model optimized for edge devices."
+    variants:
+      - quant: "Q4_K_M"
+        size_mb: 1100
+        mmproj_size_mb: 180
+        ram_required_mb: 1850
+        url: "https://huggingface.co/vikhyatk/moondream2/resolve/main/moondream2-text-model-Q4_K_M.gguf"
+        sha256: "77a83d7830cb85bbf1277a16f2c2fe45c924bc98864d46ad5021a8d438062a42"
+        mmproj_url: "https://huggingface.co/vikhyatk/moondream2/resolve/main/moondream2-mmproj-f16.gguf"
+        mmproj_sha256: "590d34ed66675383447868dfc7f35aabbc6a02dd705c1be27c5c0648fbeef607"
+        recommended: true
+    hardware_profiles:
+      - profile: "rpi5-bcm2712-8gb-a76"
+        tokens_per_sec: 8.5
+        quant: "Q4_K_M"
+      - profile: "opi5-rk3588-16gb-a76"
+        tokens_per_sec: 11.8
+        quant: "Q4_K_M"

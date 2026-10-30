@@ -1,0 +1,30 @@
+name: "litrun Local AI Runtime"
+slug: "litrun"
+version: "0.3.0"
+description: "Ultra-lightweight offline LLM & VLM runtime with hardware RAM governor and OpenAI-compatible API for Home Assistant."
+url: "https://github.com/assassinaj602/litrun"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+startup: services
+boot: auto
+host_network: false
+ports:
+  8080/tcp: 8080
+ports_description:
+  8080/tcp: "OpenAI REST API Endpoint"
+webui: "http://[HOST]:[PORT:8080]/v1/models"
+map:
+  - share:rw
+options:
+  model: "qwen2.5-0.5b"
+  quant: "Q4_K_M"
+  port: 8080
+  threads: 4
+schema:
+  model: "str"
+  quant: "str"
+  port: "int"
+  threads: "int"

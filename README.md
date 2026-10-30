@@ -6,7 +6,7 @@
 [![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://assassinaj602.github.io/litrun)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
-[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.2.0)
+[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.3.0)
 
 > **Deploy any LLM to any embedded Linux device in one command.**  
 > A lightweight, universal open-source runtime that eliminates hardware fragmentation for on-device AI across Raspberry Pi, Orange Pi, industrial SoCs, and ARM64 / RISC-V edge boards.
@@ -172,11 +172,57 @@ curl http://localhost:8080/v1/chat/completions \
 
 ---
 
-## 🏠 Home Assistant & Edge Robotics Integration
+## 👁️ Vision-Language Perception (`litrun see`)
 
-Run offline, zero-cloud automations directly on your Raspberry Pi 4 / 5 or Home Assistant Yellow:
-- See the complete [Home Assistant Integration Guide & Docker Compose](integrations/homeassistant/README.md).
-- Try the interactive [Edge Memory Calculator](https://assassinaj602.github.io/litrun) to test hardware envelopes before deployment.
+Execute ultra-compact Vision-Language Models (VLMs) directly against local image files or live Linux V4L2 camera sensors:
+
+```bash
+# Query any image file:
+litrun see frame.jpg -p "What objects are on the table?"
+
+# Inspect live camera feed on /dev/video0:
+litrun see /dev/video0 -p "Is anyone approaching the security gate?"
+```
+
+Supported out-of-the-box:
+- **SmolVLM 256M Instruct** (only ~240MB RAM required — runs smoothly on 2GB Raspberry Pi 4).
+- **Moondream2 1.8B** (high-accuracy scene reasoning).
+
+---
+
+## 🔌 Autonomous Edge GPIO & Hardware Tool Calling
+
+Enable small edge models to autonomously actuate physical hardware (fans, relays, motors, buzzers) and read digital sensors or thermal telemetry via direct Linux sysfs:
+
+```bash
+litrun run --tools -p "The ambient temperature is high, turn on the cooling fan connected to GPIO pin 18"
+```
+
+```text
+litrun: {"tool": "gpio_write", "parameters": {"pin": 18, "value": 1}}
+⚡ Hardware Action: Executing gpio_write({"pin": 18, "value": 1})
+✓ Hardware Result: {"success": true, "pin": 18, "state": 1, "message": "GPIO pin 18 driven to HIGH"}
+litrun: I have activated the cooling fan on GPIO pin 18 and confirmed the hardware state is HIGH.
+```
+
+Built-in tools:
+- `gpio_write(pin, value)`: Drives GPIO pin HIGH (1) or LOW (0).
+- `gpio_read(pin)`: Reads digital state from buttons or PIR sensors.
+- `get_hardware_telemetry()`: Reads host SoC CPU temperature, 1m load average, and thermal throttling state.
+
+---
+
+## 🏠 Home Assistant 1-Click Supervisor Add-on
+
+Run litrun as an official add-on directly inside Home Assistant OS:
+
+1. In Home Assistant, open **Settings** → **Add-ons** → **Add-on Store** → **Repositories**.
+2. Add: `https://github.com/assassinaj602/litrun`
+3. Click **Install** on **litrun Local AI Runtime**.
+4. Point your Home Assistant Assist voice pipeline or OpenAI Conversation integration to `http://localhost:8080/v1`.
+
+See the complete [Home Assistant Integration Guide & Docker Compose](integrations/homeassistant/README.md).
+Try the interactive [Edge Memory Calculator](https://assassinaj602.github.io/litrun) to test hardware envelopes before deployment.
 
 ---
 

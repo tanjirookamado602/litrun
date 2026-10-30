@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bashio
+
+MODEL=$(bashio::config 'model')
+QUANT=$(bashio::config 'quant')
+PORT=$(bashio::config 'port')
+THREADS=$(bashio::config 'threads')
+
+bashio::log.info "Starting litrun Local AI Engine..."
+bashio::log.info "Model: ${MODEL} (Quant: ${QUANT})"
+bashio::log.info "Threads: ${THREADS}"
+bashio::log.info "Port: ${PORT}"
+
+# Execute litrun REST API daemon
+exec litrun serve --host 0.0.0.0 --port "${PORT}" --model "${MODEL}" --quant "${QUANT}" --threads "${THREADS}"

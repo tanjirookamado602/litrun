@@ -10,8 +10,9 @@ import time
 import inspect
 import importlib
 
-# Ensure sdk is in path
+# Ensure sdk and repo root are in path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sdk")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 TEST_MODULES = [
     "tests.python.test_hardware",
@@ -22,6 +23,8 @@ TEST_MODULES = [
     "tests.python.test_model",
     "tests.python.test_cli",
     "tests.python.test_server",
+    "tests.python.test_see",
+    "tests.python.test_tools",
 ]
 
 

@@ -320,10 +320,10 @@
 
 <div class="container">
   <header>
-    <div class="badge">⚡ Open Source Lightweight AI Runtime</div>
-    <h1>Deploy any LLM on Embedded Linux</h1>
+    <div class="badge">⚡ v0.3.0 Live • LLM, VLM & Home Assistant Add-on</div>
+    <h1>Deploy any LLM or Vision Model on Embedded Linux</h1>
     <p class="subtitle">
-      Zero manual compilation, sub-2ms C99 hardware fingerprinting, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
+      Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
     </p>
 
     <div class="cta-group">
@@ -348,12 +348,12 @@
         <button class="copy-btn" onclick="navigator.clipboard.writeText('pip install litrun')">Copy</button>
       </div>
       <div class="cmd-line">
-        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun inspect</span></code>
-        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun inspect')">Copy</button>
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun see /dev/video0 -p "Inspect security camera"</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun see /dev/video0 -p \"Inspect security camera\"')">Copy</button>
       </div>
       <div class="cmd-line">
-        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun run smollm2-135m</span></code>
-        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun run smollm2-135m')">Copy</button>
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun run --tools -p "Turn on cooling fan on GPIO 18"</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun run --tools -p \"Turn on cooling fan on GPIO 18\"')">Copy</button>
       </div>
     </div>
   </header>
@@ -386,6 +386,8 @@
           <div class="form-group">
             <label for="model-select">Target Language Model</label>
             <select id="model-select" onchange="updateCalc()">
+              <option value="smolvlm-256m">SmolVLM 256M Instruct (Vision — 240 MB)</option>
+              <option value="moondream2">Moondream2 1.8B (Vision — 1100 MB)</option>
               <option value="smollm2-135m-q4">SmolLM2 135M (Q4_K_M — 101 MB)</option>
               <option value="smollm2-135m-q8">SmolLM2 135M (Q8_0 — 139 MB)</option>
               <option value="smollm2-360m-q4">SmolLM2 360M (Q4_K_M — 258 MB)</option>
@@ -487,6 +489,22 @@
       </div>
 
       <div class="feature-card">
+        <div class="feature-icon">👁️</div>
+        <div class="feature-title">VLM Visual Edge Inspection</div>
+        <div class="feature-desc">
+          Run <code>litrun see /dev/video0</code> for live V4L2 camera frame perception using SmolVLM (240MB) & Moondream2.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏠</div>
+        <div class="feature-title">1-Click Home Assistant & GPIO</div>
+        <div class="feature-desc">
+          Official supervisor add-on repository with autonomous sysfs GPIO control (<code>litrun run --tools</code>) for fans, relays, and sensors.
+        </div>
+      </div>
+
+      <div class="feature-card">
         <div class="feature-icon">📦</div>
         <div class="feature-title">Precompiled Multi-Arch</div>
         <div class="feature-desc">
@@ -514,6 +532,8 @@
   };
 
   const MODELS = {
+    "smolvlm-256m": { sizeMb: 240, kvBytes: 48, baseTps: 18.0 },
+    "moondream2": { sizeMb: 1100, kvBytes: 128, baseTps: 9.0 },
     "smollm2-135m-q4": { sizeMb: 101, kvBytes: 32, baseTps: 18.0 },
     "smollm2-135m-q8": { sizeMb: 139, kvBytes: 32, baseTps: 15.0 },
     "smollm2-360m-q4": { sizeMb: 258, kvBytes: 64, baseTps: 13.0 },

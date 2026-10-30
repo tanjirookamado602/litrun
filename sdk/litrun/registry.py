@@ -37,6 +37,7 @@ class ModelEntry:
     default_context: int
     kv_bytes_per_token: float
     description: str
+    multimodal: bool = False
     variants: List[ModelVariant] = field(default_factory=list)
     hardware_profiles: List[ModelProfileBenchmark] = field(default_factory=list)
 
@@ -107,6 +108,7 @@ def load_models_registry() -> Dict[str, ModelEntry]:
             default_context=item.get("default_context", 2048),
             kv_bytes_per_token=float(item.get("kv_bytes_per_token", 32.0)),
             description=item.get("description", ""),
+            multimodal=bool(item.get("multimodal", False)),
             variants=variants,
             hardware_profiles=benchmarks,
         )

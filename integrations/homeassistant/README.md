@@ -15,9 +15,20 @@ Deploy fully offline, local AI on your **Raspberry Pi 4, Pi 5, or Home Assistant
 
 ---
 
-## 🚀 Quick Setup (Docker Compose)
+## 🚀 Quick Setup
 
-### 1. Launch litrun Container
+### Method 1: 1-Click Home Assistant Add-on (Recommended)
+
+1. Open Home Assistant → **Settings** → **Add-ons** → **Add-on Store**.
+2. Click the three dots (top right) → **Repositories** → Add:
+   ```text
+   https://github.com/assassinaj602/litrun
+   ```
+3. Click on **litrun Local AI Runtime** and select **Install**.
+4. Start the add-on. The local OpenAI API will now be live on `http://homeassistant.local:8080/v1`.
+
+### Method 2: Docker Compose (Standalone SBC / Server)
+
 Copy `docker-compose.yml` to your Home Assistant server or separate SBC:
 
 ```bash

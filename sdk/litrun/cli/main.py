@@ -11,6 +11,7 @@ from litrun.cli.cmd_pull import pull_cmd
 from litrun.cli.cmd_list import list_cmd
 from litrun.cli.cmd_serve import serve_cmd
 from litrun.cli.cmd_bench import bench_cmd
+from litrun.cli.cmd_see import see_cmd
 
 console = Console()
 
@@ -24,6 +25,7 @@ def cli():
 
 cli.add_command(inspect_cmd, name="inspect")
 cli.add_command(run_cmd, name="run")
+cli.add_command(see_cmd, name="see")
 cli.add_command(pull_cmd, name="pull")
 cli.add_command(list_cmd, name="list")
 cli.add_command(serve_cmd, name="serve")

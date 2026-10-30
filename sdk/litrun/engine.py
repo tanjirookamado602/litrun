@@ -157,6 +157,7 @@ class PersistentLlamaServerEngine(InferenceBackend):
         max_tokens = kwargs.get("max_tokens", 512)
         temperature = kwargs.get("temperature", 0.7)
         grammar = kwargs.get("grammar")
+        image_path = kwargs.get("image_path")
 
         payload = {
             "prompt": prompt,
@@ -166,6 +167,14 @@ class PersistentLlamaServerEngine(InferenceBackend):
         }
         if grammar:
             payload["grammar"] = grammar
+        if image_path and os.path.isfile(image_path):
+            import base64
+            try:
+                with open(image_path, "rb") as img_f:
+                    b64_data = base64.b64encode(img_f.read()).decode("utf-8")
+                    payload["image_data"] = [{"data": b64_data, "id": 1}]
+            except Exception:
+                pass
 
         req_body = json.dumps(payload).encode("utf-8")
 
@@ -255,6 +264,7 @@ class LlamaCppEngine(InferenceBackend):
         max_tokens = kwargs.get("max_tokens", 512)
         temp = kwargs.get("temperature", self.temperature)
         grammar = kwargs.get("grammar")
+        image_path = kwargs.get("image_path")
 
         cmd = [
             self.binary_path,
@@ -269,6 +279,8 @@ class LlamaCppEngine(InferenceBackend):
         ]
         if grammar:
             cmd.extend(["--grammar", grammar])
+        if image_path:
+            cmd.extend(["--image", str(image_path)])
 
         env = _build_execution_env(self.binary_path)
         t_start = time.perf_counter()
@@ -325,6 +337,8 @@ class MockEngine(InferenceBackend):
 
     def stream(self, prompt: str, **kwargs) -> Generator[str, None, None]:
         delay = 1.0 / self.tokens_per_sec if self.tokens_per_sec > 0 else 0.02
+        image_path = kwargs.get("image_path")
+        tools_mode = kwargs.get("tools") or ("Available Tools:" in prompt and any(k in prompt.lower() for k in ["gpio", "pin", "fan", "relay", "led", "telemetry", "temp"]))
         if kwargs.get("grammar") or kwargs.get("json_mode"):
             response_text = json.dumps({
                 "status": "ok",
@@ -332,6 +346,33 @@ class MockEngine(InferenceBackend):
                 "message": f"Hello from litrun JSON mode! I am {self.model_name}.",
                 "telemetry": {"governor": "nominal", "oom_risk": "none"},
             })
+        elif tools_mode:
+            if "Tool Result:" in prompt or "Hardware Result:" in prompt:
+                response_text = (
+                    f"I have verified the hardware operation. "
+                    f"The requested actuator state and telemetry have been successfully confirmed on-device."
+                )
+            else:
+                import re as _re
+                user_segment = prompt.split("user")[-1].lower() if "user" in prompt.lower() else prompt.lower()
+                pin_match = _re.search(r"pin\s*(\d+)", user_segment)
+                pin_num = int(pin_match.group(1)) if pin_match else 18
+                val_num = 0 if any(w in user_segment for w in ["off", "low", "stop", "disable", "shutdown"]) else 1
+
+                if any(w in user_segment for w in ["temp", "thermal", "telemetry", "load"]):
+                    response_text = json.dumps({"tool": "get_hardware_telemetry", "parameters": {}})
+                elif any(w in user_segment for w in ["read", "sensor", "button", "status", "check"]):
+                    response_text = json.dumps({"tool": "gpio_read", "parameters": {"pin": pin_num}})
+                else:
+                    response_text = json.dumps({"tool": "gpio_write", "parameters": {"pin": pin_num, "value": val_num}})
+        elif image_path:
+            filename = os.path.basename(str(image_path))
+            response_text = (
+                f"[Visual Inspection of {filename}]\n"
+                f"The image shows a clean scene captured from the edge camera sensor. "
+                f"No structural anomalies or visual defects are detected. "
+                f"Processed on-device via {self.model_name} VLM pipeline."
+            )
         else:
             response_text = (
                 f"Hello from litrun! I am {self.model_name} running on embedded Linux. "

@@ -19,6 +19,11 @@ from litrun.resolver import (
 )
 from litrun.engine import get_backend
 from litrun.session import Session
+from litrun.tools import (
+    EMBEDDED_TOOLS_SYSTEM_PROMPT,
+    parse_tool_call,
+    execute_embedded_tool,
+)
 
 console = Console()
 
@@ -31,8 +36,19 @@ console = Console()
 @click.option("--system", "system_prompt", default=None, help="System prompt override")
 @click.option("--json", "json_mode", is_flag=True, help="Enforce deterministic JSON output using GBNF grammar")
 @click.option("--schema", "schema_arg", default=None, help="JSON Schema string or path to .json schema file")
+@click.option("--tools", "tools_mode", is_flag=True, help="Enable autonomous edge hardware tool calling (GPIO & telemetry)")
 @click.option("--demo", is_flag=True, help="Run in high-speed hardware simulation mode without downloading weights")
-def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count: int, system_prompt: str, json_mode: bool, schema_arg: str, demo: bool):
+def run_cmd(
+    model_id: str,
+    prompt_text: str,
+    preferred_quant: str,
+    thread_count: int,
+    system_prompt: str,
+    json_mode: bool,
+    schema_arg: str,
+    tools_mode: bool,
+    demo: bool,
+):
     """Executes any curated LLM with zero quantization guesswork."""
 
     # 1. Probing Hardware
@@ -135,7 +151,14 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
     # 6. Execution Loop
     try:
         session = Session(max_context_tokens=entry.default_context)
-        if system_prompt:
+        if tools_mode:
+            console.print("[bold blue]→ Embedded Tools:[/bold blue] [bold green]Active[/bold green] (Direct sysfs GPIO & telemetry)")
+            session.system_prompt = (
+                (system_prompt + "\n\n" + EMBEDDED_TOOLS_SYSTEM_PROMPT)
+                if system_prompt
+                else EMBEDDED_TOOLS_SYSTEM_PROMPT
+            )
+        elif system_prompt:
             session.system_prompt = system_prompt
 
         grammar = None
@@ -157,9 +180,10 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
             grammar = STANDARD_JSON_GBNF
             console.print("[dim]✓ Applied standard JSON GBNF grammar[/dim]")
 
-        if prompt_text:
-            console.print(f"\n[bold green]>[/bold green] {prompt_text}\n")
-            session.add_user_message(prompt_text)
+        import json as _json
+
+        def run_step(prompt_input: str) -> None:
+            session.add_user_message(prompt_input)
             formatted = session.format_prompt(family=entry.family)
 
             console.print(f"[bold cyan]litrun:[/bold cyan] ", end="")
@@ -167,17 +191,47 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
             t0 = time.perf_counter()
             token_count = 0
 
-            for chunk in backend.stream(formatted, threads=final_threads, grammar=grammar):
+            for chunk in backend.stream(formatted, threads=final_threads, grammar=grammar, tools=tools_mode):
                 sys.stdout.write(chunk)
                 sys.stdout.flush()
                 chunks.append(chunk)
                 token_count += 1
 
+            initial_text = "".join(chunks)
+
+            if tools_mode:
+                tool_call = parse_tool_call(initial_text)
+                if tool_call:
+                    tool_name, params = tool_call
+                    console.print(f"\n[bold yellow]⚡ Hardware Action:[/bold yellow] Executing [bold cyan]{tool_name}[/bold cyan]({_json.dumps(params)})")
+                    tool_res = execute_embedded_tool(tool_name, params)
+                    console.print(f"[bold green]✓ Hardware Result:[/bold green] {_json.dumps(tool_res)}")
+
+                    session.add_assistant_message(initial_text)
+                    session.add_user_message(f"Hardware Result: {_json.dumps(tool_res)}\nPlease confirm the state.")
+                    formatted2 = session.format_prompt(family=entry.family)
+
+                    console.print(f"[bold cyan]litrun:[/bold cyan] ", end="")
+                    chunks2 = []
+                    for chunk in backend.stream(formatted2, threads=final_threads, grammar=grammar, tools=tools_mode):
+                        sys.stdout.write(chunk)
+                        sys.stdout.flush()
+                        chunks2.append(chunk)
+                        token_count += 1
+                    session.add_assistant_message("".join(chunks2))
+                else:
+                    session.add_assistant_message(initial_text)
+            else:
+                session.add_assistant_message(initial_text)
+
             t1 = time.perf_counter()
             elapsed = t1 - t0
             actual_tps = (token_count / elapsed) if elapsed > 0.05 else expected_speed
+            console.print(f"\n[dim]⚡ Telemetry: {token_count} tokens generated in {elapsed:.2f}s ({actual_tps:.1f} tok/s)[/dim]\n")
 
-            console.print(f"\n\n[dim]⚡ Telemetry: {token_count} tokens generated in {elapsed:.2f}s ({actual_tps:.1f} tok/s)[/dim]\n")
+        if prompt_text:
+            console.print(f"\n[bold green]>[/bold green] {prompt_text}\n")
+            run_step(prompt_text)
             return
 
         # Interactive REPL
@@ -194,26 +248,7 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
                     console.print("[dim]Context memory cleared.[/dim]\n")
                     continue
 
-                session.add_user_message(user_msg)
-                formatted = session.format_prompt(family=entry.family)
-
-                console.print(f"[bold cyan]litrun:[/bold cyan] ", end="")
-                chunks = []
-                t0 = time.perf_counter()
-                token_count = 0
-
-                for chunk in backend.stream(formatted, threads=final_threads, grammar=grammar):
-                    sys.stdout.write(chunk)
-                    sys.stdout.flush()
-                    chunks.append(chunk)
-                    token_count += 1
-
-                t1 = time.perf_counter()
-                elapsed = t1 - t0
-                actual_tps = (token_count / elapsed) if elapsed > 0.05 else expected_speed
-
-                session.add_assistant_message("".join(chunks))
-                console.print(f"\n[dim]({actual_tps:.1f} tok/s)[/dim]\n")
+                run_step(user_msg)
             except (KeyboardInterrupt, EOFError):
                 console.print("\n[dim]Session terminated.[/dim]")
                 break
