@@ -52,3 +52,4 @@ def test_cli_hear_pipe_run():
     assert "Routing transcription to litrun autonomous engine" in result.output
     assert "Embedded Tools: Active" in result.output
     assert "Hardware Action:" in result.output
+

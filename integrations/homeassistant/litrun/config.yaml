@@ -1,6 +1,6 @@
 name: "litrun Local AI Runtime"
 slug: "litrun"
-version: "0.3.0"
+version: "0.4.0"
 description: "Ultra-lightweight offline LLM & VLM runtime with hardware RAM governor and OpenAI-compatible API for Home Assistant."
 url: "https://github.com/assassinaj602/litrun"
 arch:

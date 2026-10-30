@@ -70,3 +70,4 @@ Output:
   "reason": "Immediate obstacle detected within safe stopping threshold."
 }
 ```
+

@@ -33,3 +33,4 @@ def test_ros2_edge_agent_node_reasoning():
     res_clear = node.reason_task("Path clear, navigate to waypoint Alpha")
     assert isinstance(res_clear, dict)
     assert "action" in res_clear
+

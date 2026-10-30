@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "litrun"
-version = "0.3.0"
+version = "0.4.0"
 description = "Universal lightweight embedded Linux AI runtime for Raspberry Pi, Orange Pi, and ARM64 SoCs"
 readme = "README.md"
 authors = [{ name = "litrun Contributors", email = "dev@litrun.dev" }]
@@ -17,6 +17,8 @@ keywords = [
     "arm64",
     "llm",
     "vlm",
+    "whisper",
+    "ros2",
     "gpio",
     "home-assistant",
     "gguf",

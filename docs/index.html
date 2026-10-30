@@ -320,10 +320,10 @@
 
 <div class="container">
   <header>
-    <div class="badge">⚡ v0.3.0 Live • LLM, VLM & Home Assistant Add-on</div>
-    <h1>Deploy any LLM or Vision Model on Embedded Linux</h1>
+    <div class="badge">⚡ v0.4.0 Live • Speech, Vision, ROS 2 & Home Assistant</div>
+    <h1>Deploy any LLM, Vision, or Speech Model on Embedded Linux</h1>
     <p class="subtitle">
-      Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
+      Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, ROS 2 robotics node, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
     </p>
 
     <div class="cta-group">
@@ -352,8 +352,8 @@
         <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun see /dev/video0 -p \"Inspect security camera\"')">Copy</button>
       </div>
       <div class="cmd-line">
-        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun run --tools -p "Turn on cooling fan on GPIO 18"</span></code>
-        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun run --tools -p \"Turn on cooling fan on GPIO 18\"')">Copy</button>
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun hear --mic --pipe-run --tools</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun hear --mic --pipe-run --tools')">Copy</button>
       </div>
     </div>
   </header>
@@ -493,6 +493,22 @@
         <div class="feature-title">VLM Visual Edge Inspection</div>
         <div class="feature-desc">
           Run <code>litrun see /dev/video0</code> for live V4L2 camera frame perception using SmolVLM (240MB) & Moondream2.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎙️</div>
+        <div class="feature-title">Edge Audio Perception</div>
+        <div class="feature-desc">
+          Run <code>litrun hear --mic --pipe-run --tools</code> to capture microphone audio, transcribe via Whisper, and execute GPIO actions.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">ROS 2 Robotics Node</div>
+        <div class="feature-desc">
+          Native ROS 2 Humble/Iron node publishing deterministic action payloads to <code>/robot/action_decision</code> and twists to <code>/cmd_vel</code>.
         </div>
       </div>
 
