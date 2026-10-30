@@ -2,14 +2,17 @@ import json
 import threading
 import urllib.request
 import urllib.error
+from click.testing import CliRunner
 from litrun.server import ThreadedHTTPServer, LitrunOpenAIHandler
 from litrun.model import Model
+from litrun.cli.cmd_ui import ui_cmd
 
 
 def test_rest_server_endpoints():
     # Load mock model instance
     mock_model = Model.load("qwen2.5-0.5b", allow_mock=True)
     LitrunOpenAIHandler.model_instance = mock_model
+    LitrunOpenAIHandler.enable_ui = True
 
     # Bind to ephemeral port
     server = ThreadedHTTPServer(("127.0.0.1", 0), LitrunOpenAIHandler)
@@ -26,21 +29,84 @@ def test_rest_server_endpoints():
             data = json.loads(resp.read().decode("utf-8"))
             assert data["status"] == "healthy"
 
-        # 2. Test /v1/hardware
+        # 2. Test / (Web UI HTML)
+        with urllib.request.urlopen(f"{base_url}/") as resp:
+            assert resp.status == 200
+            content_type = resp.headers.get("Content-Type", "")
+            assert "text/html" in content_type
+            html_text = resp.read().decode("utf-8")
+            assert "litrun Edge AI Console" in html_text
+            assert "Playground" in html_text
+            assert "GPIO Matrix" in html_text
+
+        # 3. Test /ui route
+        with urllib.request.urlopen(f"{base_url}/ui") as resp:
+            assert resp.status == 200
+            html_text = resp.read().decode("utf-8")
+            assert "litrun" in html_text
+
+        # 4. Test / with Accept: application/json
+        req_root_json = urllib.request.Request(
+            f"{base_url}/",
+            headers={"Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req_root_json) as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert data["status"] == "healthy"
+
+        # 5. Test /v1/hardware
         with urllib.request.urlopen(f"{base_url}/v1/hardware") as resp:
             assert resp.status == 200
             data = json.loads(resp.read().decode("utf-8"))
             assert "hardware" in data
             assert "governor" in data
+            assert "telemetry" in data
 
-        # 3. Test /v1/models
+        # 6. Test /v1/gpio GET
+        with urllib.request.urlopen(f"{base_url}/v1/gpio") as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert data["success"] is True
+            assert "pins" in data
+            assert "mode" in data
+
+        # 7. Test /v1/gpio POST (write pin)
+        gpio_post = json.dumps({"pin": 17, "value": 1}).encode("utf-8")
+        req_gpio = urllib.request.Request(
+            f"{base_url}/v1/gpio",
+            data=gpio_post,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_gpio) as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert data["success"] is True
+            assert data["pin"] == 17
+            assert data["state"] == 1
+
+        # 8. Test /v1/benchmark POST
+        bench_post = json.dumps({"prompt": "Benchmark test prompt"}).encode("utf-8")
+        req_bench = urllib.request.Request(
+            f"{base_url}/v1/benchmark",
+            data=bench_post,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_bench) as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert data["status"] == "success"
+            assert "tokens_generated" in data
+            assert "tokens_per_second" in data
+
+        # 9. Test /v1/models
         with urllib.request.urlopen(f"{base_url}/v1/models") as resp:
             assert resp.status == 200
             data = json.loads(resp.read().decode("utf-8"))
             assert data["object"] == "list"
             assert len(data["data"]) > 0
 
-        # 4. Test POST /v1/chat/completions (Non-streaming)
+        # 10. Test POST /v1/chat/completions (Non-streaming)
         post_data = json.dumps({
             "model": "qwen2.5-0.5b",
             "messages": [{"role": "user", "content": "Hello"}],
@@ -59,7 +125,7 @@ def test_rest_server_endpoints():
             assert len(data["choices"]) > 0
             assert "content" in data["choices"][0]["message"]
 
-        # 5. Test POST /v1/chat/completions (Streaming SSE)
+        # 11. Test POST /v1/chat/completions (Streaming SSE)
         stream_data = json.dumps({
             "model": "qwen2.5-0.5b",
             "messages": [{"role": "user", "content": "Explain edge AI"}],
@@ -77,7 +143,7 @@ def test_rest_server_endpoints():
             assert "data: " in content
             assert "data: [DONE]" in content
 
-        # 6. Test POST /v1/chat/completions with response_format json_object
+        # 12. Test POST /v1/chat/completions with response_format json_object
         json_req_data = json.dumps({
             "model": "qwen2.5-0.5b",
             "messages": [{"role": "user", "content": "Return telemetry"}],
@@ -102,3 +168,12 @@ def test_rest_server_endpoints():
         t.start()
         t.join(timeout=0.5)
         server.server_close()
+
+
+def test_cli_ui_help():
+    runner = CliRunner()
+    result = runner.invoke(ui_cmd, ["--help"])
+    assert result.exit_code == 0
+    assert "Launch the litrun visual Web UI device dashboard" in result.output
+    assert "--port" in result.output
+    assert "--host" in result.output

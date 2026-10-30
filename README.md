@@ -119,13 +119,45 @@ for chunk in model.stream("Summarize industrial sensor telemetry:"):
 
 ---
 
-## 🌐 OpenAI-Compatible REST Server
+## 🖥️ Visual Web UI Device Console (`litrun ui`)
 
-Drop Litrun directly into LangChain, LlamaIndex, AutoGen, or web frontends:
+Deploy a self-hosted, lightweight responsive Web UI dashboard directly from `litrun` with **zero external dependencies** and 100% offline edge capability:
+
+```bash
+# Launch the dashboard and automatically open your browser:
+litrun ui
+
+# Or specify model and bind network interface for LAN / phone access:
+litrun ui qwen2.5-0.5b --host 0.0.0.0 --port 8080
+```
+
+Access the dashboard at `http://<device-ip>:8080`:
+
+| Dashboard Feature | Capability |
+| :--- | :--- |
+| **Live Telemetry Gauges** | Real-time CPU temperature (°C) gauge, thermal throttling status, active RAM envelope vs cgroups ceiling, and 1-minute load average. |
+| **Multimodal Chat Playground** | Interactive streaming chat (SSE) with system prompt editor, temperature/token sliders, quick hardware action chips, and multimodal image upload preview for VLMs. |
+| **40-Pin GPIO Matrix** | Interactive visual pin grid for Raspberry Pi GPIOs (Pins 2–27). Real-time digital toggle switches (`HIGH (1)` / `LOW (0)`) via kernel sysfs with automated simulation fallback. |
+| **On-Device Benchmarking** | One-click 100-token benchmark evaluating real-time throughput (tok/s), latency, and time-to-first-token (TTFT). |
+| **OpenAI REST Explorer** | Live endpoint inspector and copy-pasteable cURL snippets for LangChain, Home Assistant, and scripts. |
+
+---
+
+## 🌐 OpenAI-Compatible REST Server & Ingress
+
+Drop Litrun directly into LangChain, LlamaIndex, AutoGen, Home Assistant, or web frontends:
 
 ```bash
 litrun serve --port 8080 qwen2.5-0.5b
 ```
+
+By default, `litrun serve` hosts both the OpenAI-compatible REST API and the Embedded Web UI Console:
+- **Web UI Dashboard**: `http://localhost:8080/`
+- **OpenAI Chat Completions**: `http://localhost:8080/v1/chat/completions` (supports streaming SSE)
+- **Hardware Telemetry**: `http://localhost:8080/v1/hardware`
+- **GPIO Pin Matrix**: `http://localhost:8080/v1/gpio` (GET status, POST toggle)
+- **Model Registry**: `http://localhost:8080/v1/models`
+- **Health Check**: `http://localhost:8080/health`
 
 Send standard OpenAI completions:
 
@@ -142,6 +174,17 @@ curl http://localhost:8080/v1/chat/completions \
 Query live hardware and thermal telemetry via REST:
 ```bash
 curl http://localhost:8080/v1/hardware
+```
+
+Read or write GPIO pins via REST:
+```bash
+# Read all GPIO pin states
+curl http://localhost:8080/v1/gpio
+
+# Drive GPIO pin 17 HIGH (1)
+curl -X POST http://localhost:8080/v1/gpio \
+  -H "Content-Type: application/json" \
+  -d '{"pin": 17, "value": 1}'
 ```
 
 ---

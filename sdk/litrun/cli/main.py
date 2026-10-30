@@ -10,6 +10,7 @@ from litrun.cli.cmd_run import run_cmd
 from litrun.cli.cmd_pull import pull_cmd
 from litrun.cli.cmd_list import list_cmd
 from litrun.cli.cmd_serve import serve_cmd
+from litrun.cli.cmd_ui import ui_cmd
 from litrun.cli.cmd_bench import bench_cmd
 from litrun.cli.cmd_see import see_cmd
 from litrun.cli.cmd_hear import hear_cmd
@@ -31,6 +32,7 @@ cli.add_command(hear_cmd, name="hear")
 cli.add_command(pull_cmd, name="pull")
 cli.add_command(list_cmd, name="list")
 cli.add_command(serve_cmd, name="serve")
+cli.add_command(ui_cmd, name="ui")
 cli.add_command(bench_cmd, name="benchmark")
 
 if __name__ == "__main__":

@@ -5,7 +5,9 @@ Supports simulated hardware when running on developer laptops / x86 without GPIO
 """
 
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
+
+COMMON_PINS: List[int] = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
 
 
 class GPIOController:
@@ -100,6 +102,15 @@ class GPIOController:
             "message": f"GPIO pin {pin} is currently {'HIGH' if val else 'LOW'}",
         }
 
+    def get_pin_states(self, pins: Optional[List[int]] = None) -> Dict[int, int]:
+        """Returns the current state for an array of GPIO pins."""
+        if pins is None:
+            pins = COMMON_PINS
+        states: Dict[int, int] = {}
+        for pin in pins:
+            states[pin] = self.read_pin(pin)["state"]
+        return states
+
 
 _GLOBAL_GPIO = GPIOController()
 
@@ -110,6 +121,16 @@ def gpio_write(pin: int, value: int) -> Dict[str, Any]:
 
 def gpio_read(pin: int) -> Dict[str, Any]:
     return _GLOBAL_GPIO.read_pin(pin)
+
+
+def gpio_get_all(pins: Optional[List[int]] = None) -> Dict[str, Any]:
+    """Returns all GPIO pin states along with hardware/simulation mode."""
+    states = _GLOBAL_GPIO.get_pin_states(pins)
+    return {
+        "success": True,
+        "pins": states,
+        "mode": "simulation" if _GLOBAL_GPIO.mock else "hardware",
+    }
 
 
 def get_hardware_telemetry() -> Dict[str, Any]:

@@ -26,6 +26,7 @@ Deploy fully offline, local AI on your **Raspberry Pi 4, Pi 5, or Home Assistant
    ```
 3. Click on **litrun Local AI Runtime** and select **Install**.
 4. Start the add-on. The local OpenAI API will now be live on `http://homeassistant.local:8080/v1`.
+5. Click **Open Web UI** to access the embedded litrun visual console directly in your browser.
 
 ### Method 2: Docker Compose (Standalone SBC / Server)
 

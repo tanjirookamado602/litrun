@@ -320,10 +320,10 @@
 
 <div class="container">
   <header>
-    <div class="badge">⚡ v0.4.0 Live • Speech, Vision, ROS 2 & Home Assistant</div>
+    <div class="badge">⚡ v0.4.0 Live • Speech, Vision, ROS 2, Web UI & Home Assistant</div>
     <h1>Deploy any LLM, Vision, or Speech Model on Embedded Linux</h1>
     <p class="subtitle">
-      Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, ROS 2 robotics node, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
+      Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, visual Web UI console, ROS 2 robotics node, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
     </p>
 
     <div class="cta-group">
@@ -346,6 +346,10 @@
       <div class="cmd-line">
         <code><span style="color:#7ee787">$</span> <span class="cmd-text">pip install litrun</span></code>
         <button class="copy-btn" onclick="navigator.clipboard.writeText('pip install litrun')">Copy</button>
+      </div>
+      <div class="cmd-line">
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun ui</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun ui')">Copy</button>
       </div>
       <div class="cmd-line">
         <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun see /dev/video0 -p "Inspect security camera"</span></code>
@@ -448,6 +452,14 @@
     <p class="section-subtitle">Engineered from the ground up for embedded Linux systems.</p>
 
     <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <div class="feature-title">Embedded Web UI Console</div>
+        <div class="feature-desc">
+          Run <code>litrun ui</code> for an instant self-hosted visual device dashboard: real-time telemetry gauges, multimodal chat playground, and 40-pin GPIO pin matrix.
+        </div>
+      </div>
+
       <div class="feature-card">
         <div class="feature-icon">⚡</div>
         <div class="feature-title">1.87ms C99 Probing</div>
