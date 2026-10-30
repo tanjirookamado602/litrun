@@ -2,7 +2,7 @@
 # litrun Release Packaging & Asset Bundler
 set -euo pipefail
 
-VERSION=${1:-"0.1.0"}
+VERSION=${1:-"0.2.0"}
 DIST_DIR="dist/releases/v${VERSION}"
 mkdir -p "$DIST_DIR"
 

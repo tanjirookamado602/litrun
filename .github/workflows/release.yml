@@ -27,8 +27,9 @@ jobs:
 
       - name: Package Multi-Arch Release Artifacts
         run: |
+          VERSION="${GITHUB_REF_NAME#v}"
           chmod +x scripts/cross_compile_arm64.sh scripts/package_release.sh
-          ./scripts/package_release.sh 0.1.0
+          ./scripts/package_release.sh "${VERSION}"
 
       - name: Build Python Wheel and sdist
         run: |
@@ -41,7 +42,7 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-            dist/releases/v0.1.0/*
+            dist/releases/*/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

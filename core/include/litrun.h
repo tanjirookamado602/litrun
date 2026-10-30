@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define LITRUN_VERSION "0.1.0"
+#define LITRUN_VERSION "0.2.0"
 #define LITRUN_API_VERSION 1
 
 const char* litrun_get_version(void);

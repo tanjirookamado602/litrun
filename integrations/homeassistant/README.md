@@ -74,3 +74,4 @@ For mission-critical automations (turning off heaters, triggering relays), run [
 | **Raspberry Pi 5** | 4GB / 8GB | `qwen2.5-0.5b-Q8_0` | ~14.2 tok/s |
 | **Raspberry Pi 5** | 8GB | `llama-3.2-1b-Q4_K_M` | ~11.0 tok/s |
 | **Orange Pi 5 (RK3588)** | 8GB / 16GB | `qwen2.5-1.5b-Q4_K_M` | ~18.5 tok/s |
+

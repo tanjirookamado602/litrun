@@ -51,7 +51,7 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
         if self.path in ["/", "/health"]:
             self._send_json(200, {
                 "status": "healthy",
-                "litrun_version": "0.1.0",
+                "litrun_version": "0.2.0",
                 "service": "litrun OpenAI-Compatible REST Server",
             })
         elif self.path == "/v1/hardware":

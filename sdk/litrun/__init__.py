@@ -8,7 +8,7 @@ from litrun.model import Model
 from litrun.registry import ModelEntry, ModelVariant, list_models, get_model
 from litrun.grammar import resolve_grammar, json_schema_to_gbnf, STANDARD_JSON_GBNF
 
-__version__ = "0.2.0-dev"
+__version__ = "0.2.0"
 
 __all__ = [
     "Model",

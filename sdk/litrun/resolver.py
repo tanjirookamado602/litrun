@@ -65,7 +65,7 @@ def download_file_streaming(
     tmp_path = destination + ".tmp"
     req = urllib.request.Request(
         url,
-        headers={"User-Agent": "litrun/0.1.0 (embedded-linux-runtime)"},
+        headers={"User-Agent": "litrun/0.2.0 (embedded-linux-runtime)"},
     )
 
     with urllib.request.urlopen(req) as resp, open(tmp_path, "wb") as out_file:
