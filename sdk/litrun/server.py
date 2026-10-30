@@ -92,6 +92,7 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
             messages = payload.get("messages", [])
             stream = payload.get("stream", False)
             model_id = payload.get("model", "qwen2.5-0.5b")
+            response_format = payload.get("response_format")
 
             model = LitrunOpenAIHandler.model_instance
             if model is None:
@@ -115,7 +116,7 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.end_headers()
 
-                for chunk in model.stream(prompt):
+                for chunk in model.stream(prompt, response_format=response_format):
                     sse_chunk = {
                         "id": req_id,
                         "object": "chat.completion.chunk",
@@ -145,7 +146,7 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
                 self.wfile.flush()
                 self.close_connection = True
             else:
-                full_response = model.generate(prompt)
+                full_response = model.generate(prompt, response_format=response_format)
                 resp = {
                     "id": req_id,
                     "object": "chat.completion",

@@ -3,6 +3,7 @@
 [![CI Matrix](https://github.com/assassinaj602/litrun/actions/workflows/ci.yml/badge.svg)](https://github.com/assassinaj602/litrun/actions)
 [![Release & Distribution](https://github.com/assassinaj602/litrun/actions/workflows/release.yml/badge.svg)](https://github.com/assassinaj602/litrun/releases)
 [![PyPI version](https://img.shields.io/pypi/v/litrun.svg?color=blue)](https://pypi.org/project/litrun/)
+[![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://assassinaj602.github.io/litrun)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
 [![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.1.0)
@@ -142,6 +143,40 @@ Query live hardware and thermal telemetry via REST:
 ```bash
 curl http://localhost:8080/v1/hardware
 ```
+
+---
+
+## 📐 Deterministic JSON Mode & GBNF Schema Enforcement
+
+Small models (0.5B – 1.5B) often hallucinate syntax errors when asked for JSON. Litrun compiles JSON schemas directly into **GGML BNF (GBNF) grammars**, forcing output tokens to adhere strictly to your schema:
+
+### Via CLI:
+```bash
+# Standard valid JSON:
+litrun run qwen2.5-0.5b --json -p "Extract sensor telemetry: temperature is 24.2C and status is nominal"
+
+# Or with strict schema:
+litrun run qwen2.5-0.5b --schema '{"type":"object","properties":{"temp":{"type":"number"},"status":{"type":"string"}},"required":["temp","status"]}'
+```
+
+### Via OpenAI REST API:
+```bash
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen2.5-0.5b",
+    "messages": [{"role": "user", "content": "Return room telemetry"}],
+    "response_format": {"type": "json_object"}
+  }'
+```
+
+---
+
+## 🏠 Home Assistant & Edge Robotics Integration
+
+Run offline, zero-cloud automations directly on your Raspberry Pi 4 / 5 or Home Assistant Yellow:
+- See the complete [Home Assistant Integration Guide & Docker Compose](integrations/homeassistant/README.md).
+- Try the interactive [Edge Memory Calculator](https://assassinaj602.github.io/litrun) to test hardware envelopes before deployment.
 
 ---
 

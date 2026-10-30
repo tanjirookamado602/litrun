@@ -129,6 +129,18 @@ class Model:
 
     def stream(self, prompt: str, **kwargs) -> Generator[str, None, None]:
         """Streams response tokens for a single prompt."""
+        from litrun.grammar import resolve_grammar, STANDARD_JSON_GBNF
+
+        grammar = kwargs.get("grammar")
+        response_format = kwargs.get("response_format")
+        if not grammar and response_format:
+            grammar = resolve_grammar(response_format)
+        elif kwargs.get("json_mode"):
+            grammar = STANDARD_JSON_GBNF
+
+        if grammar:
+            kwargs["grammar"] = grammar
+
         self.session.add_user_message(prompt)
         formatted_prompt = self.session.format_prompt(family=self.entry.family)
 

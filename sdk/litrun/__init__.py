@@ -6,8 +6,9 @@ from litrun.hardware import HardwareProfile, probe_hardware
 from litrun.governor import GovernorStatus, poll_governor, check_ram_envelope
 from litrun.model import Model
 from litrun.registry import ModelEntry, ModelVariant, list_models, get_model
+from litrun.grammar import resolve_grammar, json_schema_to_gbnf, STANDARD_JSON_GBNF
 
-__version__ = "0.1.0"
+__version__ = "0.2.0-dev"
 
 __all__ = [
     "Model",
@@ -20,6 +21,9 @@ __all__ = [
     "ModelVariant",
     "list_models",
     "get_model",
+    "resolve_grammar",
+    "json_schema_to_gbnf",
+    "STANDARD_JSON_GBNF",
     "__version__",
 ]
 

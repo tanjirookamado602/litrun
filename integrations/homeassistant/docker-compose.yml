@@ -1,0 +1,39 @@
+# litrun Home Assistant & IoT Edge Compose Stack
+# Run local offline AI directly alongside Home Assistant on Raspberry Pi 4 / 5 or x86 SBCs
+
+version: "3.8"
+
+services:
+  litrun:
+    image: python:3.11-slim
+    container_name: litrun-edge-ai
+    restart: unless-stopped
+    command: >
+      bash -c "pip install --no-cache-dir litrun &&
+               litrun serve --port 8080 qwen2.5-0.5b"
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LITRUN_CACHE_DIR=/root/.cache/litrun
+    volumes:
+      - litrun_cache:/root/.cache/litrun
+      # Allow litrun governor to read SBC devicetree and thermals
+      - /sys/firmware/devicetree/base:/sys/firmware/devicetree/base:ro
+      - /sys/class/thermal:/sys/class/thermal:ro
+    # Allocate shared memory for fast tensor processing & avoid OOM swapping
+    shm_size: "1gb"
+    deploy:
+      resources:
+        limits:
+          memory: 3500M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  litrun_cache:
+    name: litrun_cache

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>litrun — Universal Lightweight Embedded Linux AI Runtime</title>
+  <meta name="description" content="Deploy any LLM to Raspberry Pi, Orange Pi, and ARM64 single-board computers in one command with zero compilation and active Linux OOM protection.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%3E%3Ctext y=%2226%22 font-size=%2226%22>⚡</text></svg>">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero */
+    header {
+      padding: 70px 0 40px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 9999px;
+      color: #60a5fa;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff 40%, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      color: var(--text-muted);
+      max-width: 720px;
+      margin: 0 auto 30px;
+    }
+
+    .cta-group {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+    .btn-primary:hover { background: #1d4ed8; }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { border-color: #374151; }
+
+    /* Terminal Quickstart */
+    .terminal-box {
+      background: #0d1117;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: #e6edf3;
+      max-width: 780px;
+      margin: 0 auto 60px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+
+    .term-header {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .term-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .cmd-line {
+      margin: 8px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cmd-text {
+      color: #58a6ff;
+    }
+
+    .copy-btn {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .copy-btn:hover { color: #f0f6fc; border-color: #8b949e; }
+
+    /* Interactive Calculator Section */
+    .section-title {
+      font-size: 1.85rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+    }
+
+    .calc-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 60px;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 768px) {
+      .calc-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+    select:focus { border-color: var(--accent); }
+
+    .range-val {
+      float: right;
+      color: #60a5fa;
+      font-family: var(--font-mono);
+      font-weight: bold;
+    }
+
+    /* Calculator Results */
+    .result-box {
+      background: #090d16;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .verdict-banner {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-align: center;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .status-safe {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+    }
+    .status-tight {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #fbbf24;
+    }
+    .status-blocked {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #1f2937;
+      font-size: 0.9rem;
+    }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-name { color: var(--text-muted); }
+    .metric-val {
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 60px;
+    }
+
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+    }
+
+    .feature-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding-top: 40px;
+      border-top: 1px solid var(--card-border);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">⚡ Open Source Lightweight AI Runtime</div>
+    <h1>Deploy any LLM on Embedded Linux</h1>
+    <p class="subtitle">
+      Zero manual compilation, sub-2ms C99 hardware fingerprinting, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
+    </p>
+
+    <div class="cta-group">
+      <a href="https://github.com/assassinaj602/litrun" class="btn btn-primary" target="_blank">
+        <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+        View on GitHub
+      </a>
+      <a href="https://pypi.org/project/litrun/" class="btn btn-secondary" target="_blank">
+        📦 PyPI: pip install litrun
+      </a>
+    </div>
+
+    <!-- Quickstart Codebox -->
+    <div class="terminal-box">
+      <div class="term-header">
+        <div class="term-dot dot-red"></div>
+        <div class="term-dot dot-yellow"></div>
+        <div class="term-dot dot-green"></div>
+      </div>
+      <div class="cmd-line">
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">pip install litrun</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('pip install litrun')">Copy</button>
+      </div>
+      <div class="cmd-line">
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun inspect</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun inspect')">Copy</button>
+      </div>
+      <div class="cmd-line">
+        <code><span style="color:#7ee787">$</span> <span class="cmd-text">litrun run smollm2-135m</span></code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('litrun run smollm2-135m')">Copy</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive SBC RAM Calculator -->
+  <section id="calculator">
+    <h2 class="section-title">📊 Edge Memory & Speed Calculator</h2>
+    <p class="section-subtitle">
+      Simulate your device's exact memory envelope and token throughput before downloading a single weight.
+    </p>
+
+    <div class="calc-card">
+      <div class="calc-grid">
+        <!-- Input Form -->
+        <div>
+          <div class="form-group">
+            <label for="board-select">Single-Board Computer (SBC)</label>
+            <select id="board-select" onchange="updateCalc()">
+              <option value="rpi5-8gb">Raspberry Pi 5 (8GB) — BCM2712 Cortex-A76</option>
+              <option value="rpi5-4gb">Raspberry Pi 5 (4GB) — BCM2712 Cortex-A76</option>
+              <option value="rpi4-4gb" selected>Raspberry Pi 4 Model B (4GB) — BCM2711 Cortex-A72</option>
+              <option value="rpi4-2gb">Raspberry Pi 4 Model B (2GB) — BCM2711 Cortex-A72</option>
+              <option value="opi5-16gb">Orange Pi 5 / 5+ (16GB) — Rockchip RK3588</option>
+              <option value="opi5-8gb">Orange Pi 5 (8GB) — Rockchip RK3588</option>
+              <option value="jetson-8gb">NVIDIA Jetson Orin Nano (8GB) — Cortex-A78AE</option>
+              <option value="x86-workstation">Generic x86_64 Edge Workstation (16GB AVX2)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="model-select">Target Language Model</label>
+            <select id="model-select" onchange="updateCalc()">
+              <option value="smollm2-135m-q4">SmolLM2 135M (Q4_K_M — 101 MB)</option>
+              <option value="smollm2-135m-q8">SmolLM2 135M (Q8_0 — 139 MB)</option>
+              <option value="smollm2-360m-q4">SmolLM2 360M (Q4_K_M — 258 MB)</option>
+              <option value="qwen-05b-q4" selected>Qwen 2.5 0.5B (Q4_K_M — 468 MB)</option>
+              <option value="qwen-05b-q8">Qwen 2.5 0.5B (Q8_0 — 644 MB)</option>
+              <option value="qwen-15b-q4">Qwen 2.5 1.5B (Q4_K_M — 1065 MB)</option>
+              <option value="llama-1b-q4">LLaMA 3.2 1B (Q4_K_M — 770 MB)</option>
+              <option value="llama-3b-q4">LLaMA 3.2 3B (Q4_K_M — 1925 MB)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="context-slider">Context Window (Tokens) <span class="range-val" id="ctx-label">2048</span></label>
+            <input type="range" id="context-slider" min="512" max="8192" step="512" value="2048" oninput="updateCalc()">
+          </div>
+        </div>
+
+        <!-- Real-time Output -->
+        <div class="result-box">
+          <div id="verdict-banner" class="verdict-banner status-safe">
+            ✓ SAFE: Optimal RAM Envelope
+          </div>
+
+          <div>
+            <div class="metric-row">
+              <span class="metric-name">Device Physical RAM:</span>
+              <span class="metric-val" id="metric-total-ram">4096 MB</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">Model Weights:</span>
+              <span class="metric-val" id="metric-model-ram">468 MB</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">KV Cache Memory:</span>
+              <span class="metric-val" id="metric-kv-ram">192 MB</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">Runtime Buffer:</span>
+              <span class="metric-val">250 MB</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">Total RAM Needed:</span>
+              <span class="metric-val" id="metric-needed-ram">910 MB</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name">Estimated Speed:</span>
+              <span class="metric-val" id="metric-speed" style="color: #60a5fa;">8.5 tok/s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture Highlights -->
+  <section>
+    <h2 class="section-title">🏛️ Why Litrun Exists</h2>
+    <p class="section-subtitle">Engineered from the ground up for embedded Linux systems.</p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">1.87ms C99 Probing</div>
+        <div class="feature-desc">
+          Parses devicetree and aux vectors (<code>getauxval</code>) directly in native C99 with zero subprocesses or Python overhead.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <div class="feature-title">Active Memory Governor</div>
+        <div class="feature-desc">
+          Inspects Linux memory cgroups (v1/v2) and prevents kernel OOM panics and SD card swap thrashing before allocations occur.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⏱️</div>
+        <div class="feature-title">Sub-50ms TTFT</div>
+        <div class="feature-desc">
+          Keeps model weights pinned in RAM across multi-turn chats and REST requests, eliminating subprocess reload latency.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📐</div>
+        <div class="feature-title">Strict GBNF JSON Schema</div>
+        <div class="feature-desc">
+          Guarantees deterministic, hallucination-free JSON outputs for Home Assistant, ROS 2, and robotics actuators.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Drop-In OpenAI Server</div>
+        <div class="feature-desc">
+          Run <code>litrun serve --port 8080</code> and connect directly to LangChain, LlamaIndex, Home Assistant, and open-webui.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <div class="feature-title">Precompiled Multi-Arch</div>
+        <div class="feature-desc">
+          Instant prebuilt binaries tuned for Cortex-A72 NEON, Cortex-A76 DotProd, and x86 AVX2—no CMake or 45-minute compiles.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Released under the open-source MIT License • Built with ❤️ for the Embedded Linux & Robotics Community</p>
+  </footer>
+</div>
+
+<script>
+  const BOARDS = {
+    "rpi5-8gb": { name: "Raspberry Pi 5", ram: 8192, speedMultiplier: 1.6, vector: "DotProd (ASIMDDP)" },
+    "rpi5-4gb": { name: "Raspberry Pi 5", ram: 4096, speedMultiplier: 1.6, vector: "DotProd (ASIMDDP)" },
+    "rpi4-4gb": { name: "Raspberry Pi 4", ram: 4096, speedMultiplier: 1.0, vector: "NEON (ASIMD)" },
+    "rpi4-2gb": { name: "Raspberry Pi 4", ram: 2048, speedMultiplier: 0.95, vector: "NEON (ASIMD)" },
+    "opi5-16gb": { name: "Orange Pi 5+", ram: 16384, speedMultiplier: 2.1, vector: "DotProd + NPU" },
+    "opi5-8gb": { name: "Orange Pi 5", ram: 8192, speedMultiplier: 2.0, vector: "DotProd + NPU" },
+    "jetson-8gb": { name: "NVIDIA Jetson Orin", ram: 8192, speedMultiplier: 3.2, vector: "Ampere GPU" },
+    "x86-workstation": { name: "x86_64 Edge Host", ram: 16384, speedMultiplier: 3.8, vector: "AVX2 + FMA" },
+  };
+
+  const MODELS = {
+    "smollm2-135m-q4": { sizeMb: 101, kvBytes: 32, baseTps: 18.0 },
+    "smollm2-135m-q8": { sizeMb: 139, kvBytes: 32, baseTps: 15.0 },
+    "smollm2-360m-q4": { sizeMb: 258, kvBytes: 64, baseTps: 13.0 },
+    "qwen-05b-q4": { sizeMb: 468, kvBytes: 96, baseTps: 8.5 },
+    "qwen-05b-q8": { sizeMb: 644, kvBytes: 96, baseTps: 7.2 },
+    "qwen-15b-q4": { sizeMb: 1065, kvBytes: 160, baseTps: 4.8 },
+    "llama-1b-q4": { sizeMb: 770, kvBytes: 128, baseTps: 6.5 },
+    "llama-3b-q4": { sizeMb: 1925, kvBytes: 256, baseTps: 2.8 },
+  };
+
+  function updateCalc() {
+    const boardKey = document.getElementById("board-select").value;
+    const modelKey = document.getElementById("model-select").value;
+    const context = parseInt(document.getElementById("context-slider").value, 10);
+
+    document.getElementById("ctx-label").innerText = context;
+
+    const board = BOARDS[boardKey];
+    const model = MODELS[modelKey];
+
+    const kvMb = Math.round((context * model.kvBytes) / (1024 * 1024));
+    const runtimeBufferMb = 250;
+    const totalNeededMb = model.sizeMb + kvMb + runtimeBufferMb;
+
+    document.getElementById("metric-total-ram").innerText = board.ram + " MB";
+    document.getElementById("metric-model-ram").innerText = model.sizeMb + " MB";
+    document.getElementById("metric-kv-ram").innerText = kvMb + " MB";
+    document.getElementById("metric-needed-ram").innerText = totalNeededMb + " MB";
+
+    const estSpeed = (model.baseTps * board.speedMultiplier).toFixed(1);
+    document.getElementById("metric-speed").innerText = `~${estSpeed} tok/s (${board.vector})`;
+
+    const banner = document.getElementById("verdict-banner");
+    const headroomRatio = totalNeededMb / board.ram;
+
+    if (headroomRatio > 0.85) {
+      banner.className = "verdict-banner status-blocked";
+      banner.innerText = `✗ BLOCKED BY GOVERNOR: ${totalNeededMb}MB exceeds 85% safe memory limit`;
+    } else if (headroomRatio > 0.65) {
+      banner.className = "verdict-banner status-tight";
+      banner.innerText = `! TIGHT ENVELOPE: ${totalNeededMb}MB uses ${Math.round(headroomRatio * 100)}% of RAM`;
+    } else {
+      banner.className = "verdict-banner status-safe";
+      banner.innerText = `✓ SAFE: Optimal RAM Envelope (${Math.round(headroomRatio * 100)}% utilized)`;
+    }
+  }
+
+  // Initial calculation on page load
+  updateCalc();
+</script>
+
+</body>
+</html>

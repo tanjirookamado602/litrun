@@ -77,6 +77,26 @@ def test_rest_server_endpoints():
             assert "data: " in content
             assert "data: [DONE]" in content
 
+        # 6. Test POST /v1/chat/completions with response_format json_object
+        json_req_data = json.dumps({
+            "model": "qwen2.5-0.5b",
+            "messages": [{"role": "user", "content": "Return telemetry"}],
+            "response_format": {"type": "json_object"},
+            "stream": False,
+        }).encode("utf-8")
+
+        req_json = urllib.request.Request(
+            f"{base_url}/v1/chat/completions",
+            data=json_req_data,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_json) as resp:
+            assert resp.status == 200
+            res_json = json.loads(resp.read().decode("utf-8"))
+            content_str = res_json["choices"][0]["message"]["content"]
+            parsed = json.loads(content_str)
+            assert parsed.get("status") == "ok"
+
     finally:
         t = threading.Thread(target=server.shutdown, daemon=True)
         t.start()

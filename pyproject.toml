@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "litrun"
-version = "0.1.0"
+version = "0.2.0.dev1"
 description = "Universal lightweight embedded Linux AI runtime for Raspberry Pi, Orange Pi, and ARM64 SoCs"
 readme = "README.md"
 authors = [{ name = "litrun Contributors", email = "dev@litrun.dev" }]
@@ -69,8 +69,8 @@ all = [
 litrun = "litrun.cli.main:cli"
 
 [project.urls]
-Homepage = "https://litrun.dev"
-Documentation = "https://github.com/assassinaj602/litrun#readme"
+Homepage = "https://assassinaj602.github.io/litrun"
+Documentation = "https://assassinaj602.github.io/litrun"
 Repository = "https://github.com/assassinaj602/litrun"
 Issues = "https://github.com/assassinaj602/litrun/issues"
 

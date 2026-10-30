@@ -29,8 +29,10 @@ console = Console()
 @click.option("-q", "--quant", "preferred_quant", default=None, help="Preferred quantization (e.g. Q4_K_M, Q8_0)")
 @click.option("-t", "--threads", "thread_count", default=None, type=int, help="Thread count override")
 @click.option("--system", "system_prompt", default=None, help="System prompt override")
+@click.option("--json", "json_mode", is_flag=True, help="Enforce deterministic JSON output using GBNF grammar")
+@click.option("--schema", "schema_arg", default=None, help="JSON Schema string or path to .json schema file")
 @click.option("--demo", is_flag=True, help="Run in high-speed hardware simulation mode without downloading weights")
-def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count: int, system_prompt: str, demo: bool):
+def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count: int, system_prompt: str, json_mode: bool, schema_arg: str, demo: bool):
     """Executes any curated LLM with zero quantization guesswork."""
 
     # 1. Probing Hardware
@@ -136,6 +138,25 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
         if system_prompt:
             session.system_prompt = system_prompt
 
+        grammar = None
+        if schema_arg:
+            import json as _json
+            from litrun.grammar import json_schema_to_gbnf
+            try:
+                if os.path.isfile(schema_arg):
+                    with open(schema_arg, "r") as sf:
+                        schema_dict = _json.load(sf)
+                else:
+                    schema_dict = _json.loads(schema_arg)
+                grammar = json_schema_to_gbnf(schema_dict)
+                console.print("[dim]✓ Applied GBNF JSON Schema constraints[/dim]")
+            except Exception as se:
+                console.print(f"[bold red]✗ Schema Error:[/bold red] Could not parse schema: {se}")
+        elif json_mode:
+            from litrun.grammar import STANDARD_JSON_GBNF
+            grammar = STANDARD_JSON_GBNF
+            console.print("[dim]✓ Applied standard JSON GBNF grammar[/dim]")
+
         if prompt_text:
             console.print(f"\n[bold green]>[/bold green] {prompt_text}\n")
             session.add_user_message(prompt_text)
@@ -146,7 +167,7 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
             t0 = time.perf_counter()
             token_count = 0
 
-            for chunk in backend.stream(formatted, threads=final_threads):
+            for chunk in backend.stream(formatted, threads=final_threads, grammar=grammar):
                 sys.stdout.write(chunk)
                 sys.stdout.flush()
                 chunks.append(chunk)
@@ -181,7 +202,7 @@ def run_cmd(model_id: str, prompt_text: str, preferred_quant: str, thread_count:
                 t0 = time.perf_counter()
                 token_count = 0
 
-                for chunk in backend.stream(formatted, threads=final_threads):
+                for chunk in backend.stream(formatted, threads=final_threads, grammar=grammar):
                     sys.stdout.write(chunk)
                     sys.stdout.flush()
                     chunks.append(chunk)

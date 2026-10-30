@@ -18,6 +18,7 @@ TEST_MODULES = [
     "tests.python.test_governor",
     "tests.python.test_registry",
     "tests.python.test_session",
+    "tests.python.test_grammar",
     "tests.python.test_model",
     "tests.python.test_cli",
     "tests.python.test_server",

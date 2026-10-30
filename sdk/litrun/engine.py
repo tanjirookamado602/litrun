@@ -156,13 +156,18 @@ class PersistentLlamaServerEngine(InferenceBackend):
     def stream(self, prompt: str, **kwargs) -> Generator[str, None, None]:
         max_tokens = kwargs.get("max_tokens", 512)
         temperature = kwargs.get("temperature", 0.7)
+        grammar = kwargs.get("grammar")
 
-        req_body = json.dumps({
+        payload = {
             "prompt": prompt,
             "n_predict": max_tokens,
             "temperature": temperature,
             "stream": True,
-        }).encode("utf-8")
+        }
+        if grammar:
+            payload["grammar"] = grammar
+
+        req_body = json.dumps(payload).encode("utf-8")
 
         req = urllib.request.Request(
             f"{self.base_url}/completion",
@@ -249,6 +254,7 @@ class LlamaCppEngine(InferenceBackend):
         threads = kwargs.get("threads", self.threads)
         max_tokens = kwargs.get("max_tokens", 512)
         temp = kwargs.get("temperature", self.temperature)
+        grammar = kwargs.get("grammar")
 
         cmd = [
             self.binary_path,
@@ -261,6 +267,8 @@ class LlamaCppEngine(InferenceBackend):
             "--simple-io",
             "--no-display-prompt",
         ]
+        if grammar:
+            cmd.extend(["--grammar", grammar])
 
         env = _build_execution_env(self.binary_path)
         t_start = time.perf_counter()
@@ -317,11 +325,19 @@ class MockEngine(InferenceBackend):
 
     def stream(self, prompt: str, **kwargs) -> Generator[str, None, None]:
         delay = 1.0 / self.tokens_per_sec if self.tokens_per_sec > 0 else 0.02
-        response_text = (
-            f"Hello from litrun! I am {self.model_name} running on embedded Linux. "
-            f"Our dedicated C resource governor ensures memory cgroups and thermals "
-            f"remain stable during inference, avoiding kernel OOM killer terminations."
-        )
+        if kwargs.get("grammar") or kwargs.get("json_mode"):
+            response_text = json.dumps({
+                "status": "ok",
+                "model": self.model_name,
+                "message": f"Hello from litrun JSON mode! I am {self.model_name}.",
+                "telemetry": {"governor": "nominal", "oom_risk": "none"},
+            })
+        else:
+            response_text = (
+                f"Hello from litrun! I am {self.model_name} running on embedded Linux. "
+                f"Our dedicated C resource governor ensures memory cgroups and thermals "
+                f"remain stable during inference, avoiding kernel OOM killer terminations."
+            )
 
         words = response_text.split(" ")
         for i, word in enumerate(words):
