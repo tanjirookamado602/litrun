@@ -37,3 +37,4 @@ def ui_cmd(model_id: str, host: str, port: int, open_browser: bool):
             pass
 
     start_server(host=host, port=port, model_id=model_id, ui=True)
+
