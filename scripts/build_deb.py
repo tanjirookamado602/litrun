@@ -22,7 +22,7 @@ def _get_version(repo_root: str) -> str:
             for line in f:
                 if line.startswith("version ="):
                     return line.split("=")[1].strip().strip('"').strip("'")
-    return "0.8.0"
+    return "0.9.0"
 
 
 def main():

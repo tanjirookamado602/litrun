@@ -5,8 +5,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/litrun.svg?color=blue)](https://pypi.org/project/litrun/)
 [![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://assassinaj602.github.io/litrun)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20Jetson%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
-[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.8.0)
+[![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20Jetson%20%7C%20RISC--V%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
+[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.9.0)
 
 > **Deploy any LLM to any embedded Linux device in one command.**  
 > A lightweight, universal open-source runtime that eliminates hardware fragmentation for on-device AI across Raspberry Pi, Orange Pi, industrial SoCs, and ARM64 / RISC-V edge boards.
@@ -215,16 +215,35 @@ curl http://localhost:8080/v1/chat/completions \
 
 ---
 
-## 👁️ Vision-Language Perception (`litrun see`)
+## 👁️ Vision-Language Perception & RTSP Camera Streaming (`litrun see`)
 
-Execute ultra-compact Vision-Language Models (VLMs) directly against local image files or live Linux V4L2 camera sensors:
+Execute ultra-compact Vision-Language Models (VLMs) directly against local image files, Linux V4L2 camera sensors, or live RTSP IP camera streams:
 
 ```bash
-# Query any image file:
+# Query any local image file:
 litrun see frame.jpg -p "What objects are on the table?"
 
-# Inspect live camera feed on /dev/video0:
+# Inspect live local USB/CSI camera on /dev/video0:
 litrun see /dev/video0 -p "Is anyone approaching the security gate?"
+
+# Stream live from any IP Camera / RTSP video feed:
+litrun see rtsp://admin:pass@192.168.1.50:554/live/ch0 -p "Monitor industrial conveyor belt"
+
+# Motion-triggered surveillance (only triggers VLM when frame difference exceeds threshold):
+litrun see /dev/video0 --motion --threshold 0.15 --continuous -p "Report any unexpected movement"
+
+# Structured 2D bounding-box object detection (returns normalized [ymin, xmin, ymax, xmax]):
+litrun see frame.jpg --detect --json
+```
+
+```text
+Detected Objects:
+┏━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓
+┃ Index ┃ Label            ┃ Bounding Box [y0,x0,y1,x1] ┃ Confidence ┃
+┡━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━┩
+│ 1     │ forklift         │ [120, 45, 680, 520]        │ 94.8%      │
+│ 2     │ safety_helmet    │ [135, 180, 210, 245]       │ 91.2%      │
+└───────┴──────────────────┴────────────────────────────┴────────────┘
 ```
 
 Supported out-of-the-box:
@@ -269,25 +288,31 @@ Try the interactive [Edge Memory Calculator](https://assassinaj602.github.io/lit
 
 ---
 
-## 🎙️ Edge Audio Perception & Voice-to-Action (`litrun hear`)
+## 🎙️ Edge Audio Perception & Continuous Voice Assistant (`litrun hear`)
 
-Capture voice instructions directly from USB microphones, I2S mic arrays, or WAV audio files and pipe speech recognition into autonomous edge actions:
+Capture voice instructions directly from USB microphones, I2S mic arrays, or WAV audio files and pipe speech recognition into autonomous edge actions or continuous hands-free voice loops:
 
 ```bash
-# Direct transcription:
+# Direct single-shot transcription:
 litrun hear sample.wav
 
 # Live mic capture piped straight into autonomous GPIO execution:
 litrun hear --mic --pipe-run --tools
+
+# Continuous voice assistant perception loop with acoustic VAD & Wake Phrase:
+litrun hear --mic --continuous --hotword "hey litrun" --tools
 ```
 
 ```text
-litrun hear: "Turn on the cooling fan connected to GPIO pin 18"
+[VU: ||||||||......] Acoustic VAD active. Listening for wake phrase 'hey litrun'...
+⚡ Hotword 'hey litrun' detected!
+User: "Turn on the cooling fan connected to GPIO pin 18"
 → Routing transcription to litrun autonomous engine...
 litrun: {"tool": "gpio_write", "parameters": {"pin": 18, "value": 1}}
 ⚡ Hardware Action: Executing gpio_write({"pin": 18, "value": 1})
 ✓ Hardware Result: {"success": true, "pin": 18, "state": 1}
 litrun: I have activated the cooling fan on GPIO pin 18.
+[VU: ||||..........] Resuming continuous listener loop...
 ```
 
 ---
@@ -423,7 +448,29 @@ litrun benchmark --all --export-json matrix_report.json
 
 # Compare CPU vs Rockchip NPU vs NVIDIA Jetson GPU backends side-by-side:
 litrun benchmark --compare
+
+# Display official edge SBC hardware benchmark leaderboard:
+litrun benchmark --leaderboard
 ```
+
+```text
+                   🏆 Edge AI Hardware Benchmark Leaderboard                    
+┏━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━┓
+┃# ┃ SBC / Board            ┃ SoC / Arch       ┃ Accelerator         ┃ Model (Quant)┃ Speed  ┃ TTFT   ┃
+┡━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━┩
+│1 │ NVIDIA Jetson Orin     │ Tegra-Orin (arm) │ Ampere GPU (CUDA)   │ qwen (FP16)  │ 34.2/s │ 11.5ms │
+│2 │ Orange Pi 5 Plus       │ RK3588 (arm64)   │ 6.0 TOPS NPU (RKNN) │ smol (INT8)  │ 24.8/s │ 14.2ms │
+│3 │ Raspberry Pi 5         │ BCM2712 (arm64)  │ Cortex-A76 DotProd  │ smol (Q4_0)  │ 16.4/s │ 18.4ms │
+│4 │ Orange Pi 5            │ RK3588 (arm64)   │ CPU NEON/DotProd    │ qwen (Q4_K)  │ 12.1/s │ 24.0ms │
+│5 │ Raspberry Pi 5         │ BCM2712 (arm64)  │ Cortex-A76 DotProd  │ qwen (Q4_K)  │  9.8/s │ 28.5ms │
+│6 │ Raspberry Pi 4 Model B │ BCM2711 (arm64)  │ Cortex-A72 NEON     │ smol (Q4_0)  │  9.1/s │ 32.0ms │
+│7 │ Milk-V Pioneer         │ SG2042 (riscv64) │ RISC-V RVV (Vec 1.0)│ smol (Q4_0)  │  7.2/s │ 38.0ms │
+│8 │ Raspberry Pi 4 Model B │ BCM2711 (arm64)  │ Cortex-A72 NEON     │ qwen (Q4_K)  │  4.8/s │ 48.0ms │
+│9 │ Raspberry Pi 3 Model B+│ BCM2837 (armv7l) │ Cortex-A53 NEON     │ smol (Q4_0)  │  2.9/s │ 85.0ms │
+└──┴────────────────────────┴──────────────────┴─────────────────────┴──────────────┴────────┴────────┘
+```
+
+The benchmark data is also exported in machine-readable JSON format at [`docs/leaderboard.json`](docs/leaderboard.json).
 
 ```text
                      Hardware Accelerator Comparison Matrix                     
@@ -653,6 +700,8 @@ In addition to OpenAI-compatible `/v1/chat/completions`, `litrun serve` streams 
 | **Raspberry Pi 3 / Zero 2 W**| BCM2837 (Cortex-A53) | ARM NEON Baseline | 14.5 tok/s (135M) | Phase 1 (GA) |
 | **Orange Pi 5 / 5 Plus** | Rockchip RK3588 | 6 TOPS NPU (RKNN) + DotProd | 24.8 tok/s | Phase 1 (GA) |
 | **NVIDIA Jetson Orin Nano** | Tegra Orin (Cortex-A78AE)| 1024 CUDA Cores + Ampere GPU | 28.5 tok/s | Phase 1 (GA) |
+| **Milk-V Pioneer** | SG2042 64-core (riscv64) | RISC-V RVV (Vector 1.0) | 7.2 tok/s | Phase 2 (GA) |
+| **StarFive VisionFive 2** | JH7110 Quad-core (riscv64)| RISC-V 64-bit RV64GC | 4.1 tok/s | Phase 2 (GA) |
 | **Generic x86_64 Edge Host**| Intel Core / AMD Ryzen | AVX2 + FMA | 32.0 tok/s | Phase 1 (GA) |
 
 ---

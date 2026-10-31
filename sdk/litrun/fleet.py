@@ -36,7 +36,7 @@ class FleetNodeProfile:
     installed_models: List[str] = field(default_factory=list)
     status: str = "healthy"  # healthy, throttled, updating, offline
     last_heartbeat: float = field(default_factory=time.time)
-    firmware_version: str = "0.8.0"
+    firmware_version: str = "0.9.0"
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
@@ -57,7 +57,7 @@ class FleetNodeProfile:
             installed_models=data.get("installed_models", []),
             status=data.get("status", "healthy"),
             last_heartbeat=data.get("last_heartbeat", time.time()),
-            firmware_version=data.get("firmware_version", "0.8.0"),
+            firmware_version=data.get("firmware_version", "0.9.0"),
         )
 
 

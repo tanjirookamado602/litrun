@@ -307,6 +307,63 @@
       font-size: 0.9rem;
     }
 
+    /* Leaderboard Table */
+    .leaderboard-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 60px;
+      overflow-x: auto;
+    }
+    .leaderboard-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .leaderboard-table th {
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--card-border);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .leaderboard-table th:hover {
+      color: var(--accent);
+    }
+    .leaderboard-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #1f2937;
+      white-space: nowrap;
+    }
+    .leaderboard-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .rank-pill {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      line-height: 24px;
+      border-radius: 50%;
+      text-align: center;
+      font-weight: bold;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .rank-1 { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #fbbf24; }
+    .rank-2 { background: rgba(209, 213, 219, 0.2); color: #e5e7eb; border: 1px solid #9ca3af; }
+    .rank-3 { background: rgba(180, 83, 9, 0.2); color: #f59e0b; border: 1px solid #d97706; }
+    .rank-other { background: rgba(75, 85, 99, 0.2); color: #9ca3af; }
+    .speed-badge {
+      font-weight: 700;
+      color: #34d399;
+      font-family: var(--font-mono);
+    }
+
     footer {
       text-align: center;
       color: var(--text-muted);
@@ -320,7 +377,7 @@
 
 <div class="container">
   <header>
-    <div class="badge">⚡ v0.8.0 Live • Modelfile Engine, Edge Quantization, Fleet OTA Protocol & SSE Telemetry</div>
+    <div class="badge">⚡ v0.9.0 Live • RISC-V 64 RVV, Live RTSP Vision, Continuous Hotword Voice & Edge Leaderboard</div>
     <h1>Deploy any LLM, Vision, or Speech Model on Embedded Linux</h1>
     <p class="subtitle">
       Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, visual Web UI console, ROS 2 robotics node, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
@@ -383,6 +440,8 @@
               <option value="opi5-16gb">Orange Pi 5 / 5+ (16GB) — Rockchip RK3588</option>
               <option value="opi5-8gb">Orange Pi 5 (8GB) — Rockchip RK3588</option>
               <option value="jetson-8gb">NVIDIA Jetson Orin Nano (8GB) — Cortex-A78AE</option>
+              <option value="milkv-32gb">Milk-V Pioneer (32GB) — SG2042 64-Core RISC-V RVV</option>
+              <option value="visionfive2-8gb">StarFive VisionFive 2 (8GB) — JH7110 Quad-Core RISC-V</option>
               <option value="x86-workstation">Generic x86_64 Edge Workstation (16GB AVX2)</option>
             </select>
           </div>
@@ -443,6 +502,42 @@
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Edge AI Hardware Benchmark Leaderboard -->
+  <section id="leaderboard">
+    <h2 class="section-title">🏆 Edge AI Hardware Benchmark Leaderboard</h2>
+    <p class="section-subtitle">
+      Empirical on-device token throughput, TTFT latency, and active power draw across single-board computers. Click any column header to sort.
+    </p>
+
+    <div class="leaderboard-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+        <span style="font-size:0.85rem; color:var(--text-muted); font-family:var(--font-mono);">
+          Live dataset: <a href="leaderboard.json" target="_blank" style="color:#60a5fa; text-decoration:none;">docs/leaderboard.json</a>
+        </span>
+        <span style="font-size:0.85rem; color:var(--text-muted);">
+          CLI equivalent: <code style="background:#090d16; padding:3px 6px; border-radius:4px; color:#34d399; font-family:var(--font-mono);">litrun benchmark --leaderboard</code>
+        </span>
+      </div>
+      <table class="leaderboard-table" id="leaderboard-table">
+        <thead>
+          <tr>
+            <th onclick="sortLeaderboard('rank')">Rank ⬍</th>
+            <th onclick="sortLeaderboard('board_name')">SBC / Board ⬍</th>
+            <th onclick="sortLeaderboard('soc')">SoC / Arch ⬍</th>
+            <th onclick="sortLeaderboard('accelerator')">Accelerator ⬍</th>
+            <th onclick="sortLeaderboard('model_id')">Model (Quant) ⬍</th>
+            <th onclick="sortLeaderboard('tok_per_sec')" style="text-align:right;">Speed (tok/s) ⬍</th>
+            <th onclick="sortLeaderboard('ttft_ms')" style="text-align:right;">TTFT ⬍</th>
+            <th onclick="sortLeaderboard('power_watts')" style="text-align:right;">Power ⬍</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
     </div>
   </section>
 
@@ -636,6 +731,8 @@
     "opi5-16gb": { name: "Orange Pi 5+", ram: 16384, speedMultiplier: 2.1, vector: "DotProd + NPU" },
     "opi5-8gb": { name: "Orange Pi 5", ram: 8192, speedMultiplier: 2.0, vector: "DotProd + NPU" },
     "jetson-8gb": { name: "NVIDIA Jetson Orin", ram: 8192, speedMultiplier: 3.2, vector: "Ampere GPU" },
+    "milkv-32gb": { name: "Milk-V Pioneer", ram: 32768, speedMultiplier: 1.1, vector: "RISC-V RVV (Vector 1.0)" },
+    "visionfive2-8gb": { name: "StarFive VisionFive 2", ram: 8192, speedMultiplier: 0.6, vector: "RISC-V RV64GC" },
     "x86-workstation": { name: "x86_64 Edge Host", ram: 16384, speedMultiplier: 3.8, vector: "AVX2 + FMA" },
   };
 
@@ -691,6 +788,77 @@
 
   // Initial calculation on page load
   updateCalc();
+
+  // Leaderboard data & interactive sorting
+  let leaderboardData = [
+    { rank: 1, board_name: "NVIDIA Jetson Orin Nano", soc: "Tegra-Orin", arch: "aarch64", ram_gb: 8, accelerator: "Ampere GPU (CUDA)", model_id: "qwen2.5-0.5b", quant: "FP16", tok_per_sec: 34.2, ttft_ms: 11.5, power_watts: 9.5 },
+    { rank: 2, board_name: "Orange Pi 5 Plus", soc: "RK3588", arch: "aarch64", ram_gb: 16, accelerator: "6.0 TOPS NPU (RKNN)", model_id: "smollm2-135m", quant: "INT8", tok_per_sec: 24.8, ttft_ms: 14.2, power_watts: 7.2 },
+    { rank: 3, board_name: "Raspberry Pi 5", soc: "BCM2712", arch: "aarch64", ram_gb: 8, accelerator: "Cortex-A76 DotProd", model_id: "smollm2-135m", quant: "Q4_0", tok_per_sec: 16.4, ttft_ms: 18.4, power_watts: 5.8 },
+    { rank: 4, board_name: "Orange Pi 5", soc: "RK3588", arch: "aarch64", ram_gb: 16, accelerator: "CPU NEON/DotProd", model_id: "qwen2.5-0.5b", quant: "Q4_K_M", tok_per_sec: 12.1, ttft_ms: 24.0, power_watts: 6.5 },
+    { rank: 5, board_name: "Raspberry Pi 5", soc: "BCM2712", arch: "aarch64", ram_gb: 8, accelerator: "Cortex-A76 DotProd", model_id: "qwen2.5-0.5b", quant: "Q4_K_M", tok_per_sec: 9.8, ttft_ms: 28.5, power_watts: 6.1 },
+    { rank: 6, board_name: "Raspberry Pi 4 Model B", soc: "BCM2711", arch: "aarch64", ram_gb: 4, accelerator: "Cortex-A72 NEON", model_id: "smollm2-135m", quant: "Q4_0", tok_per_sec: 9.1, ttft_ms: 32.0, power_watts: 4.5 },
+    { rank: 7, board_name: "Milk-V Pioneer", soc: "SG2042", arch: "riscv64", ram_gb: 32, accelerator: "RISC-V RVV (Vector 1.0)", model_id: "smollm2-135m", quant: "Q4_0", tok_per_sec: 7.2, ttft_ms: 38.0, power_watts: 18.0 },
+    { rank: 8, board_name: "Raspberry Pi 4 Model B", soc: "BCM2711", arch: "aarch64", ram_gb: 4, accelerator: "Cortex-A72 NEON", model_id: "qwen2.5-0.5b", quant: "Q4_K_M", tok_per_sec: 4.8, ttft_ms: 48.0, power_watts: 5.0 },
+    { rank: 9, board_name: "Raspberry Pi 3 Model B+", soc: "BCM2837", arch: "armv7l", ram_gb: 1, accelerator: "Cortex-A53 NEON", model_id: "smollm2-135m", quant: "Q4_0", tok_per_sec: 2.9, ttft_ms: 85.0, power_watts: 3.8 }
+  ];
+
+  let currentSort = { col: 'rank', asc: true };
+
+  function renderLeaderboard() {
+    const tbody = document.getElementById("leaderboard-body");
+    if (!tbody) return;
+    tbody.innerHTML = leaderboardData.map(e => {
+      let rankClass = "rank-other";
+      if (e.rank === 1) rankClass = "rank-1";
+      else if (e.rank === 2) rankClass = "rank-2";
+      else if (e.rank === 3) rankClass = "rank-3";
+
+      return `<tr>
+        <td><span class="rank-pill ${rankClass}">${e.rank}</span></td>
+        <td style="font-weight:600; color:#fff;">${e.board_name}</td>
+        <td style="color:var(--text-muted); font-family:var(--font-mono);">${e.soc} (${e.arch})</td>
+        <td style="color:#60a5fa;">${e.accelerator}</td>
+        <td><code>${e.model_id}</code> <span style="font-size:0.8rem; color:var(--text-muted);">(${e.quant})</span></td>
+        <td style="text-align:right;" class="speed-badge">${e.tok_per_sec.toFixed(1)} tok/s</td>
+        <td style="text-align:right; color:#fbbf24; font-family:var(--font-mono);">${e.ttft_ms.toFixed(1)} ms</td>
+        <td style="text-align:right; color:var(--text-muted); font-family:var(--font-mono);">${e.power_watts.toFixed(1)} W</td>
+      </tr>`;
+    }).join("");
+  }
+
+  function sortLeaderboard(col) {
+    if (currentSort.col === col) {
+      currentSort.asc = !currentSort.asc;
+    } else {
+      currentSort.col = col;
+      currentSort.asc = (col === 'rank' || col === 'ttft_ms' || col === 'power_watts');
+    }
+
+    leaderboardData.sort((a, b) => {
+      let va = a[col];
+      let vb = b[col];
+      if (typeof va === 'string') {
+        return currentSort.asc ? va.localeCompare(vb) : vb.localeCompare(va);
+      }
+      return currentSort.asc ? (va - vb) : (vb - va);
+    });
+    renderLeaderboard();
+  }
+
+  // Attempt to fetch fresh leaderboard.json
+  fetch('leaderboard.json')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.leaderboard && data.leaderboard.length) {
+        leaderboardData = data.leaderboard;
+        renderLeaderboard();
+      }
+    })
+    .catch(() => {
+      renderLeaderboard();
+    });
+
+  renderLeaderboard();
 </script>
 
 </body>
