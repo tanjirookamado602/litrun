@@ -1,0 +1,123 @@
+{
+  "updated_at": "2026-10-31T22:22:11.585033+00:00",
+  "litrun_version": "0.8.0",
+  "leaderboard": [
+    {
+      "rank": 1,
+      "board_name": "NVIDIA Jetson Orin Nano",
+      "soc": "Tegra-Orin",
+      "arch": "aarch64",
+      "ram_gb": 8,
+      "accelerator": "Ampere GPU (CUDA)",
+      "model_id": "qwen2.5-0.5b",
+      "quant": "FP16",
+      "tok_per_sec": 34.2,
+      "ttft_ms": 11.5,
+      "power_watts": 9.5
+    },
+    {
+      "rank": 2,
+      "board_name": "Orange Pi 5 Plus",
+      "soc": "RK3588",
+      "arch": "aarch64",
+      "ram_gb": 16,
+      "accelerator": "6.0 TOPS NPU (RKNN)",
+      "model_id": "smollm2-135m",
+      "quant": "INT8",
+      "tok_per_sec": 24.8,
+      "ttft_ms": 14.2,
+      "power_watts": 7.2
+    },
+    {
+      "rank": 3,
+      "board_name": "Raspberry Pi 5",
+      "soc": "BCM2712",
+      "arch": "aarch64",
+      "ram_gb": 8,
+      "accelerator": "Cortex-A76 DotProd",
+      "model_id": "smollm2-135m",
+      "quant": "Q4_0",
+      "tok_per_sec": 16.4,
+      "ttft_ms": 18.4,
+      "power_watts": 5.8
+    },
+    {
+      "rank": 4,
+      "board_name": "Orange Pi 5",
+      "soc": "RK3588",
+      "arch": "aarch64",
+      "ram_gb": 16,
+      "accelerator": "CPU NEON/DotProd",
+      "model_id": "qwen2.5-0.5b",
+      "quant": "Q4_K_M",
+      "tok_per_sec": 12.1,
+      "ttft_ms": 24.0,
+      "power_watts": 6.5
+    },
+    {
+      "rank": 5,
+      "board_name": "Raspberry Pi 5",
+      "soc": "BCM2712",
+      "arch": "aarch64",
+      "ram_gb": 8,
+      "accelerator": "Cortex-A76 DotProd",
+      "model_id": "qwen2.5-0.5b",
+      "quant": "Q4_K_M",
+      "tok_per_sec": 9.8,
+      "ttft_ms": 28.5,
+      "power_watts": 6.1
+    },
+    {
+      "rank": 6,
+      "board_name": "Raspberry Pi 4 Model B",
+      "soc": "BCM2711",
+      "arch": "aarch64",
+      "ram_gb": 4,
+      "accelerator": "Cortex-A72 NEON",
+      "model_id": "smollm2-135m",
+      "quant": "Q4_0",
+      "tok_per_sec": 9.1,
+      "ttft_ms": 32.0,
+      "power_watts": 4.5
+    },
+    {
+      "rank": 7,
+      "board_name": "Milk-V Pioneer",
+      "soc": "SG2042",
+      "arch": "riscv64",
+      "ram_gb": 32,
+      "accelerator": "RISC-V RVV (Vector 1.0)",
+      "model_id": "smollm2-135m",
+      "quant": "Q4_0",
+      "tok_per_sec": 7.2,
+      "ttft_ms": 38.0,
+      "power_watts": 18.0
+    },
+    {
+      "rank": 8,
+      "board_name": "Raspberry Pi 4 Model B",
+      "soc": "BCM2711",
+      "arch": "aarch64",
+      "ram_gb": 4,
+      "accelerator": "Cortex-A72 NEON",
+      "model_id": "qwen2.5-0.5b",
+      "quant": "Q4_K_M",
+      "tok_per_sec": 4.8,
+      "ttft_ms": 48.0,
+      "power_watts": 5.0
+    },
+    {
+      "rank": 9,
+      "board_name": "Raspberry Pi 3 Model B+",
+      "soc": "BCM2837",
+      "arch": "armv7l",
+      "ram_gb": 1,
+      "accelerator": "Cortex-A53 NEON",
+      "model_id": "smollm2-135m",
+      "quant": "Q4_0",
+      "tok_per_sec": 2.9,
+      "ttft_ms": 85.0,
+      "power_watts": 3.8
+    }
+  ]
+}

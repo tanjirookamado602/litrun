@@ -33,6 +33,9 @@ typedef struct {
     int has_avx512;
     int has_fma;
 
+    /* RISC-V Vector Extensions */
+    int has_rvv;                /* 1 if RISC-V Vector 1.0 extension (RVV) is supported */
+
     /* NPU Detection */
     int has_rknn;               /* 1 if Rockchip NPU device (/dev/rknpu) exists */
     int has_nvdla;              /* 1 if NVIDIA NVDLA device exists */

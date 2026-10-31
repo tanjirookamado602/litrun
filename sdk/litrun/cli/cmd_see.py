@@ -1,16 +1,19 @@
 """
-litrun see: Vision-Language Model execution on edge cameras and image inputs
+litrun see: Vision-Language Model execution on edge cameras, RTSP streams, and images.
 Usage:
     litrun see frame.jpg -p "What objects are on the table?"
-    litrun see /dev/video0 -p "Is anyone approaching the door?"
+    litrun see rtsp://192.168.1.100:554/live --motion
+    litrun see /dev/video0 --detect --json
 """
 
+from __future__ import annotations
 import os
 import sys
 import time
-import subprocess
+import json
 import click
 from rich.console import Console
+from rich.table import Table
 from litrun.hardware import probe_hardware
 from litrun.registry import get_model, select_optimal_variant
 from litrun.governor import check_ram_envelope, poll_governor
@@ -20,72 +23,57 @@ from litrun.resolver import (
     resolve_engine_binary,
 )
 from litrun.engine import get_backend
-from litrun.session import Session
+from litrun.vision import (
+    capture_frame,
+    is_network_stream,
+    is_camera_device,
+    VisionMotionDetector,
+    format_detection_prompt,
+    parse_detected_objects,
+)
 
 console = Console()
 
 
-def capture_camera_frame(device: str, output_path: str) -> bool:
-    """Attempts frame capture from V4L2 device using ffmpeg, fswebcam, or v4l2-ctl."""
-    # 1. Try ffmpeg if available
-    try:
-        subprocess.run(
-            ["ffmpeg", "-y", "-f", "v4l2", "-video_size", "640x480", "-i", device, "-vframes", "1", output_path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=5,
-            check=True
-        )
-        return True
-    except Exception:
-        pass
-
-    # 2. Try fswebcam
-    try:
-        subprocess.run(
-            ["fswebcam", "-d", device, "-r", "640x480", "--no-banner", output_path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=5,
-            check=True
-        )
-        return True
-    except Exception:
-        pass
-
-    return False
-
-
 @click.command(name="see")
 @click.argument("input_target", default="frame.jpg")
-@click.option("-p", "--prompt", "prompt_text", default="Describe this image in detail for edge telemetry.", help="Visual query prompt")
+@click.option("-p", "--prompt", "prompt_text", default=None, help="Visual query prompt")
 @click.option("-m", "--model", "model_id", default="smolvlm-256m", help="Vision model ID (e.g. smolvlm-256m, moondream2)")
 @click.option("-q", "--quant", "preferred_quant", default=None, help="Preferred quantization")
+@click.option("--motion", is_flag=True, help="Enable motion delta detection trigger before inference")
+@click.option("--threshold", "motion_thresh", default=0.05, type=float, help="Motion sensitivity threshold (0.01 to 0.50)")
+@click.option("--detect", is_flag=True, help="Extract structured bounding box coordinates for detected objects")
+@click.option("--continuous", is_flag=True, help="Run continuous monitoring loop on camera or RTSP stream")
+@click.option("--max-frames", default=3, type=int, help="Maximum frames to process in continuous mode")
+@click.option("--json", "json_output", is_flag=True, help="Output results in structured JSON format")
 @click.option("--demo", is_flag=True, help="Run in hardware simulation mode")
-def see_cmd(input_target: str, prompt_text: str, model_id: str, preferred_quant: str, demo: bool):
-    """Inspects images or live camera frames using ultra-compact Vision-Language Models (VLMs)."""
+def see_cmd(
+    input_target: str,
+    prompt_text: Optional[str],
+    model_id: str,
+    preferred_quant: Optional[str],
+    motion: bool,
+    motion_thresh: float,
+    detect: bool,
+    continuous: bool,
+    max_frames: int,
+    json_output: bool,
+    demo: bool,
+):
+    """Inspects images, USB cameras, or RTSP network streams using Vision-Language Models."""
 
-    # 1. Image Resolution or Camera Capture
-    image_file = input_target
-    captured_tmp = False
+    # Set up prompt
+    if detect:
+        final_prompt = format_detection_prompt(prompt_text)
+    else:
+        final_prompt = prompt_text or "Describe this image in detail for edge telemetry."
 
-    if input_target.startswith("/dev/video") or input_target.isdigit():
-        console.print(f"[bold cyan]Capturing frame from camera device {input_target}...[/bold cyan]")
-        image_file = "/tmp/litrun_camera_capture.jpg"
-        if not capture_camera_frame(input_target, image_file):
-            console.print(f"[bold yellow]! Notice:[/bold yellow] Hardware camera capture tool not found. Creating placeholder test frame.")
-            # Create a minimal 1x1 test JPEG if neither camera capture tool is installed
-            with open(image_file, "wb") as f:
-                f.write(b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xdb\x00C\x00\x08\x06\x06\x07\x06\x05\x08\x07\x07\x07\t\t\x08\n\x0c\x14\r\x0c\x0b\x0b\x0c\x19\x12\x13\x0f\x14\x1d\x1a\x1f\x1e\x1d\x1a\x1c\x1c $.' \",#\x1c\x1c(7),01444\x1f'9=82<.342\xff\xc0\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xc4\x00\x1f\x00\x00\x01\x05\x01\x01\x01\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xbf\x00\xff\xd9")
-        captured_tmp = True
-    elif not os.path.isfile(image_file) and not demo:
-        # Create a dummy image for testing if not existing
-        console.print(f"[bold yellow]! Creating test frame at {image_file}[/bold yellow]")
-        with open(image_file, "wb") as f:
-            f.write(b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x01\x00`\x00`\x00\x00\xff\xd9")
-
-    # 2. Hardware Probing & Resource Governor Check
-    with console.status("[bold cyan]Probing hardware and VLM memory envelope...[/bold cyan]", spinner="dots"):
+    # 1. Hardware & Governor Probing
+    if not json_output:
+        with console.status("[bold cyan]Probing hardware and VLM memory envelope...[/bold cyan]", spinner="dots"):
+            hw = probe_hardware()
+            gov = poll_governor()
+    else:
         hw = probe_hardware()
         gov = poll_governor()
 
@@ -94,24 +82,21 @@ def see_cmd(input_target: str, prompt_text: str, model_id: str, preferred_quant:
         console.print(f"[bold red]✗ Error:[/bold red] VLM model '[bold yellow]{model_id}[/bold yellow]' not found in registry.")
         sys.exit(1)
 
-    variant, decision_msg = select_optimal_variant(entry, hw, preferred_quant=preferred_quant)
-    allowed, needed_mb, gov_reason, is_tight = check_ram_envelope(
+    variant, _ = select_optimal_variant(entry, hw, preferred_quant=preferred_quant)
+    allowed, needed_mb, gov_reason, _ = check_ram_envelope(
         variant.size_mb,
         context_length=entry.default_context,
         kv_bytes_per_token=entry.kv_bytes_per_token,
     )
 
-    console.print(
-        f"[bold blue]→ Camera/Image:[/bold blue] [bold white]{input_target}[/bold white]\n"
-        f"[bold blue]→ VLM Engine:[/bold blue]   [bold white]{entry.name} ({variant.quant})[/bold white] "
-        f"[dim]({needed_mb}MB RAM required / {hw.ram_avail_mb}MB available)[/dim]"
-    )
+    if not json_output:
+        stream_type = "RTSP/IP Camera" if is_network_stream(input_target) else ("V4L2 Device" if is_camera_device(input_target) else "Static Image")
+        console.print(
+            f"[bold blue]→ Video Source:[/bold blue] [bold white]{input_target}[/bold white] [dim]({stream_type})[/dim]\n"
+            f"[bold blue]→ VLM Engine:[/bold blue]   [bold white]{entry.name} ({variant.quant})[/bold white] "
+            f"[dim]({needed_mb}MB RAM required / {hw.ram_avail_mb}MB available)[/dim]"
+        )
 
-    if not allowed and not demo:
-        console.print(f"[bold red]✗ Governor Warning:[/bold red] {gov_reason}")
-
-    # 3. Backend & Inference
-    bin_target = select_binary_target(hw)
     bin_path = None
     try:
         bin_path = resolve_engine_binary(hw)
@@ -127,26 +112,90 @@ def see_cmd(input_target: str, prompt_text: str, model_id: str, preferred_quant:
         allow_mock=True,
     )
 
+    motion_detector = VisionMotionDetector(threshold=motion_thresh) if motion else None
+    tmp_frame_path = f"/tmp/litrun_see_{int(time.time()*1000)}.jpg"
+    iterations = max_frames if continuous else 1
+    results = []
+
     try:
-        console.print(f"\n[bold green]>[/bold green] [italic]{prompt_text}[/italic]\n")
-        console.print(f"[bold cyan]litrun vision:[/bold cyan] ", end="")
+        for frame_idx in range(iterations):
+            # Capture frame
+            capture_frame(input_target, tmp_frame_path)
+            frame_bytes = b""
+            if os.path.isfile(tmp_frame_path):
+                with open(tmp_frame_path, "rb") as f:
+                    frame_bytes = f.read()
 
-        t0 = time.perf_counter()
-        token_count = 0
+            # Motion trigger check
+            has_motion = True
+            delta = 1.0
+            if motion_detector:
+                has_motion, delta = motion_detector.check_motion(frame_bytes)
+                if not has_motion:
+                    if not json_output:
+                        console.print(f"[dim]Frame {frame_idx+1}: Motion delta {delta:.3f} below threshold {motion_thresh:.2f}. Skipping VLM inference.[/dim]")
+                    time.sleep(0.5)
+                    continue
 
-        for chunk in backend.stream(prompt_text, threads=gov.recommended_threads, image_path=image_file):
-            sys.stdout.write(chunk)
-            sys.stdout.flush()
-            token_count += 1
+            if not json_output:
+                motion_badge = f" [yellow](Motion: {delta*100:.1f}%)[/yellow]" if motion else ""
+                console.print(f"\n[bold green]>[/bold green] [italic]{final_prompt[:80]}...[/italic]{motion_badge}")
+                console.print(f"[bold cyan]litrun vision:[/bold cyan] ", end="")
 
-        elapsed = time.perf_counter() - t0
-        tps = token_count / elapsed if elapsed > 0.05 else 18.0
-        console.print(f"\n\n[dim]⚡ Telemetry: {token_count} vision tokens generated in {elapsed:.2f}s ({tps:.1f} tok/s)[/dim]\n")
+            t0 = time.perf_counter()
+            token_count = 0
+            accumulated = []
+
+            for chunk in backend.stream(final_prompt, threads=gov.recommended_threads, image_path=tmp_frame_path):
+                if not json_output:
+                    sys.stdout.write(chunk)
+                    sys.stdout.flush()
+                accumulated.append(chunk)
+                token_count += 1
+
+            full_text = "".join(accumulated)
+            elapsed = time.perf_counter() - t0
+            tps = token_count / elapsed if elapsed > 0.05 else 18.0
+
+            if not json_output:
+                console.print(f"\n[dim]⚡ {token_count} vision tokens generated in {elapsed:.2f}s ({tps:.1f} tok/s)[/dim]")
+
+            # Object Detection parsing
+            objects = []
+            if detect:
+                objects = parse_detected_objects(full_text)
+                if not json_output and objects:
+                    table = Table(title="Detected Objects & Bounding Boxes", header_style="bold magenta")
+                    table.add_column("Object Label", style="bold green")
+                    table.add_column("Bounding Box [ymin, xmin, ymax, xmax]", style="cyan")
+                    table.add_column("Confidence", justify="right")
+                    for obj in objects:
+                        table.add_row(
+                            obj.get("label", "unknown"),
+                            str(obj.get("box_2d", [])),
+                            f"{obj.get('confidence', 0.9):.2f}",
+                        )
+                    console.print(table)
+
+            results.append({
+                "frame": frame_idx + 1,
+                "motion_delta": delta,
+                "text": full_text,
+                "objects": objects,
+                "tokens": token_count,
+                "tps": round(tps, 1),
+            })
+
+            if continuous and frame_idx < iterations - 1:
+                time.sleep(0.5)
+
+        if json_output:
+            click.echo(json.dumps(results if continuous else results[0], indent=2))
+
     finally:
         backend.close()
-        if captured_tmp and os.path.isfile(image_file):
+        if os.path.isfile(tmp_frame_path):
             try:
-                os.remove(image_file)
+                os.remove(tmp_frame_path)
             except Exception:
                 pass
-

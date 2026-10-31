@@ -28,3 +28,21 @@ def test_hardware_to_dict():
     assert "profile_id" in d
     assert "ram_total_mb" in d
     assert "has_neon" in d
+    assert "has_rvv" in d
+
+
+def test_riscv_fixture_hardware_detection():
+    import os
+    orig = os.environ.get("LITRUN_SYSROOT")
+    try:
+        os.environ["LITRUN_SYSROOT"] = "tests/fixtures/milkv_pioneer"
+        hw = probe_hardware()
+        assert hw.arch == "riscv64"
+        assert hw.soc == "SG2042"
+        assert hw.has_rvv is True
+        assert "riscv64" in hw.profile_id
+    finally:
+        if orig:
+            os.environ["LITRUN_SYSROOT"] = orig
+        else:
+            os.environ.pop("LITRUN_SYSROOT", None)

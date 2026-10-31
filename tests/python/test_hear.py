@@ -53,3 +53,11 @@ def test_cli_hear_pipe_run():
     assert "Embedded Tools: Active" in result.output
     assert "Hardware Action:" in result.output
 
+
+def test_cli_hear_continuous_hotword():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["hear", "--demo", "--continuous", "--hotword", "hey litrun", "--max-turns", "1"])
+    assert result.exit_code == 0
+    assert "continuous voice listener loop" in result.output
+    assert "Hotword 'hey litrun' detected" in result.output
+

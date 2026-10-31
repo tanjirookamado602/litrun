@@ -34,6 +34,7 @@ class LitrunHwProfileC(ctypes.Structure):
         ("has_avx2", ctypes.c_int),
         ("has_avx512", ctypes.c_int),
         ("has_fma", ctypes.c_int),
+        ("has_rvv", ctypes.c_int),
         ("has_rknn", ctypes.c_int),
         ("has_nvdla", ctypes.c_int),
         ("profile_id", ctypes.c_char * 64),
@@ -61,6 +62,7 @@ class HardwareProfile:
     has_avx2: bool
     has_avx512: bool
     has_fma: bool
+    has_rvv: bool
     has_rknn: bool
     has_nvdla: bool
     profile_id: str
@@ -193,6 +195,7 @@ def _pure_python_probe() -> HardwareProfile:
     has_avx2 = False
     has_avx512 = False
     has_fma = False
+    has_rvv = "riscv" in arch
 
     if os.path.isfile("/proc/cpuinfo"):
         try:
@@ -208,6 +211,8 @@ def _pure_python_probe() -> HardwareProfile:
                 has_avx2 = "avx2" in flags
                 has_avx512 = "avx512" in flags or "avx512f" in flags
                 has_fma = "fma" in flags
+                if "rv64" in flags or "riscv" in flags:
+                    has_rvv = " v " in flags or "_v" in flags or "rv64imafdcv" in flags
         except Exception:
             pass
 
@@ -257,6 +262,7 @@ def _pure_python_probe() -> HardwareProfile:
         has_avx2=has_avx2,
         has_avx512=has_avx512,
         has_fma=has_fma,
+        has_rvv=has_rvv,
         has_rknn=has_rknn,
         has_nvdla=has_nvdla,
         profile_id=profile_id,
@@ -290,6 +296,7 @@ def probe_hardware() -> HardwareProfile:
                 has_avx2=bool(c_prof.has_avx2),
                 has_avx512=bool(c_prof.has_avx512),
                 has_fma=bool(c_prof.has_fma),
+                has_rvv=bool(c_prof.has_rvv),
                 has_rknn=bool(c_prof.has_rknn),
                 has_nvdla=bool(c_prof.has_nvdla),
                 profile_id=c_prof.profile_id.decode("utf-8", "ignore"),

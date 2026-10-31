@@ -45,6 +45,16 @@ from litrun.benchmark import (
     run_single_benchmark,
     run_benchmark_matrix,
     run_backend_comparison,
+    get_public_leaderboard,
+    export_leaderboard_json,
+    LeaderboardEntry,
+)
+from litrun.vision import (
+    capture_frame,
+    VisionMotionDetector,
+    compute_frame_motion_delta,
+    format_detection_prompt,
+    parse_detected_objects,
 )
 from litrun.engine_ffi import CtypesLlamaEngine
 from litrun.swarm import (
@@ -132,6 +142,14 @@ __all__ = [
     "run_single_benchmark",
     "run_benchmark_matrix",
     "run_backend_comparison",
+    "get_public_leaderboard",
+    "export_leaderboard_json",
+    "LeaderboardEntry",
+    "capture_frame",
+    "VisionMotionDetector",
+    "compute_frame_motion_delta",
+    "format_detection_prompt",
+    "parse_detected_objects",
     "CtypesLlamaEngine",
     "SwarmNode",
     "SwarmMesh",

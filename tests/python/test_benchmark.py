@@ -120,3 +120,34 @@ def test_cli_benchmark_matrix_and_compare():
     assert "Rockchip NPU" in res_comp.output
     assert "NVIDIA Jetson" in res_comp.output
 
+
+def test_benchmark_leaderboard():
+    from litrun.benchmark import get_public_leaderboard, export_leaderboard_json, LeaderboardEntry
+    entries = get_public_leaderboard()
+    assert len(entries) >= 8
+    assert any("Raspberry Pi 5" in e.board_name for e in entries)
+    assert any("Milk-V Pioneer" in e.board_name for e in entries)
+
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+        tmp_path = tmp.name
+
+    try:
+        out_p = export_leaderboard_json(tmp_path)
+        assert os.path.exists(out_p)
+        with open(out_p, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        assert "leaderboard" in data
+        assert len(data["leaderboard"]) >= 8
+
+        # Test CLI invocation
+        runner = CliRunner()
+        res = runner.invoke(bench_cmd, ["--leaderboard"])
+        assert res.exit_code == 0
+        assert "Hardware Benchmark Leaderboard" in res.output
+        assert "Jetson" in res.output
+        assert "Orin" in res.output
+        assert "Milk-V" in res.output
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+

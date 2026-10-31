@@ -96,6 +96,17 @@ int main(void) {
     assert(opi5_prof.cores == 8);
     printf("  ✓ Real Orange Pi 5 (RK3588) Hardware Dump Verified: %s (Octa-core 16GB)\n", opi5_prof.profile_id);
 
+    /* Test RISC-V 64-bit (Milk-V Pioneer RVV) Fixture */
+    setenv("LITRUN_SYSROOT", "../tests/fixtures/milkv_pioneer", 1);
+    litrun_hw_profile_t riscv_prof;
+    rc = litrun_probe_hardware(&riscv_prof);
+    assert(rc == 0);
+    assert(strcmp(riscv_prof.arch, "riscv64") == 0);
+    assert(strcmp(riscv_prof.soc, "SG2042") == 0);
+    assert(riscv_prof.has_rvv == 1);
+    assert(strcmp(riscv_prof.profile_id, "riscv64-sg2042-32gb-rvv") == 0);
+    printf("  ✓ Real Milk-V Pioneer RISC-V 64 Dump Verified: %s (RVV Vector 1.0)\n", riscv_prof.profile_id);
+
     unsetenv("LITRUN_SYSROOT");
 
     printf("[TEST] All C Fingerprint Tests Passed!\n");

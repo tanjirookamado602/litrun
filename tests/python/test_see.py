@@ -44,3 +44,36 @@ def test_cli_see_custom_image():
         if os.path.exists(test_img):
             os.remove(test_img)
 
+
+def test_vision_motion_detector_and_bounding_boxes():
+    from litrun.vision import VisionMotionDetector, compute_frame_motion_delta, parse_detected_objects, format_detection_prompt
+
+    frame_a = b"\xff\xd8" + bytes([10] * 200) + b"\xff\xd9"
+    frame_b = b"\xff\xd8" + bytes([200] * 200) + b"\xff\xd9"
+    delta = compute_frame_motion_delta(frame_a, frame_b)
+    assert delta > 0.3
+
+    detector = VisionMotionDetector(threshold=0.05)
+    is_motion1, delta1 = detector.check_motion(frame_a)
+    assert is_motion1 is True  # First frame trigger
+
+    is_motion2, delta2 = detector.check_motion(frame_a)
+    assert is_motion2 is False  # Identical frame -> no motion
+    assert delta2 == 0.0
+
+    prompt = format_detection_prompt("Locate obstacles")
+    assert "schema" in prompt.lower()
+    assert "box_2d" in prompt
+
+    boxes = parse_detected_objects('{"objects": [{"label": "crate", "box_2d": [10, 20, 80, 90], "confidence": 0.95}]}')
+    assert len(boxes) == 1
+    assert boxes[0]["label"] == "crate"
+
+
+def test_cli_see_detect_mode():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["see", "--demo", "--detect", "--json"])
+    assert result.exit_code == 0
+    assert "objects" in result.output
+    assert "industrial_robot" in result.output
+

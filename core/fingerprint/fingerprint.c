@@ -217,6 +217,20 @@ int litrun_probe_hardware(litrun_hw_profile_t *p) {
                     safe_copy(cpu_hardware, colon + 1, sizeof(cpu_hardware));
                     trim_trailing_whitespace(cpu_hardware);
                 }
+            } else if (strncmp(line, "isa", 3) == 0) {
+                char *colon = strchr(line, ':');
+                if (colon) {
+                    safe_copy(p->arch, "riscv64", sizeof(p->arch));
+                    if (strstr(colon, "rv64") != NULL && (strchr(colon, 'v') != NULL || strstr(colon, "_v") != NULL)) {
+                        p->has_rvv = 1;
+                    }
+                }
+            } else if (strncmp(line, "uarch", 5) == 0 && cpu_model_name[0] == '\0') {
+                char *colon = strchr(line, ':');
+                if (colon) {
+                    safe_copy(cpu_model_name, colon + 1, sizeof(cpu_model_name));
+                    trim_trailing_whitespace(cpu_model_name);
+                }
             } else if (strncmp(line, "model name", 10) == 0 && cpu_model_name[0] == '\0') {
                 char *colon = strchr(line, ':');
                 if (colon) {
@@ -268,8 +282,20 @@ int litrun_probe_hardware(litrun_hw_profile_t *p) {
         safe_copy(p->soc, "RK3588", sizeof(p->soc));
     } else if (strstr(p->board_name, "Jetson") != NULL) {
         safe_copy(p->soc, "Tegra-Orin", sizeof(p->soc));
+    } else if (strstr(p->board_name, "Milk-V") != NULL || strstr(p->board_name, "Pioneer") != NULL) {
+        safe_copy(p->soc, "SG2042", sizeof(p->soc));
+        safe_copy(p->arch, "riscv64", sizeof(p->arch));
+        p->has_rvv = 1;
+    } else if (strstr(p->board_name, "VisionFive") != NULL || strstr(cpu_hardware, "JH7110") != NULL) {
+        safe_copy(p->soc, "JH7110", sizeof(p->soc));
+        safe_copy(p->arch, "riscv64", sizeof(p->arch));
+    } else if (strstr(p->board_name, "HiFive") != NULL) {
+        safe_copy(p->soc, "FU740", sizeof(p->soc));
+        safe_copy(p->arch, "riscv64", sizeof(p->arch));
     } else if (cpu_hardware[0] != '\0') {
         safe_copy(p->soc, cpu_hardware, sizeof(p->soc));
+    } else if (strcmp(p->arch, "riscv64") == 0) {
+        safe_copy(p->soc, "riscv64", sizeof(p->soc));
     } else if (strcmp(p->arch, "x86_64") == 0) {
         safe_copy(p->soc, "x86_64", sizeof(p->soc));
     } else {
@@ -285,6 +311,8 @@ int litrun_probe_hardware(litrun_hw_profile_t *p) {
                 p->has_dotprod = 1;
                 p->has_fp16 = 1;
             }
+        } else if (strstr(p->soc, "SG2042") != NULL || strstr(p->soc, "JH7110") != NULL || strstr(p->soc, "FU740") != NULL || p->has_rvv) {
+            safe_copy(p->arch, "riscv64", sizeof(p->arch));
         }
     } else {
 #if defined(__aarch64__) && defined(__linux__)
@@ -345,6 +373,12 @@ void litrun_derive_profile_id(const litrun_hw_profile_t *p, char *out_id, size_t
         snprintf(out_id, max_len, "opi5-rk3588-%dgb-a76", ram_gb);
     } else if (strstr(p->board_name, "Jetson") != NULL) {
         snprintf(out_id, max_len, "jetson-orin-%dgb", ram_gb);
+    } else if (strcmp(p->arch, "riscv64") == 0) {
+        if (p->has_rvv) {
+            snprintf(out_id, max_len, "riscv64-%s-%dgb-rvv", p->soc, ram_gb);
+        } else {
+            snprintf(out_id, max_len, "riscv64-%s-%dgb", p->soc, ram_gb);
+        }
     } else if (strcmp(p->arch, "x86_64") == 0) {
         if (p->has_avx512) {
             snprintf(out_id, max_len, "x86_64-avx512-%dgb", ram_gb);
@@ -401,7 +435,8 @@ char* litrun_probe_json(void) {
         "    \"avx\": %s,\n"
         "    \"avx2\": %s,\n"
         "    \"avx512\": %s,\n"
-        "    \"fma\": %s\n"
+        "    \"fma\": %s,\n"
+        "    \"rvv\": %s\n"
         "  },\n"
         "  \"accelerators\": {\n"
         "    \"rknn\": %s,\n"
@@ -428,6 +463,7 @@ char* litrun_probe_json(void) {
         p.has_avx2 ? "true" : "false",
         p.has_avx512 ? "true" : "false",
         p.has_fma ? "true" : "false",
+        p.has_rvv ? "true" : "false",
         p.has_rknn ? "true" : "false",
         p.has_nvdla ? "true" : "false"
     );

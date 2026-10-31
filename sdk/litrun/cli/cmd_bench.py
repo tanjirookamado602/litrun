@@ -35,6 +35,7 @@ console = Console()
 @click.option("--all", "all_models", is_flag=True, help="Run multi-model benchmark matrix (smollm2-135m, smollm2-360m, qwen2.5-0.5b)")
 @click.option("--compare", "compare_backends", is_flag=True, help="Compare CPU vs NPU vs GPU backends side-by-side")
 @click.option("-m", "--models", "model_list_str", default=None, help="Comma-separated model IDs to benchmark")
+@click.option("--leaderboard", "leaderboard_mode", is_flag=True, help="Display public edge SBC hardware benchmark leaderboard")
 @click.option("--export-json", "export_json_path", type=click.Path(), default=None, help="Path to export JSON benchmark report")
 def bench_cmd(
     model_id: str,
@@ -44,6 +45,7 @@ def bench_cmd(
     all_models: bool,
     compare_backends: bool,
     model_list_str: Optional[str],
+    leaderboard_mode: bool,
     export_json_path: Optional[str],
 ):
     """Measures on-device tokens/sec, time-to-first-token (TTFT), and thermal delta."""
@@ -51,6 +53,39 @@ def bench_cmd(
     console.print(Panel(title, expand=False))
 
     hw = probe_hardware()
+
+    # 0. Public Benchmark Leaderboard Mode
+    if leaderboard_mode:
+        from litrun.benchmark import get_public_leaderboard, export_leaderboard_json
+        entries = get_public_leaderboard()
+
+        table = Table(title="🏆 Edge AI Hardware Benchmark Leaderboard", show_header=True, header_style="bold magenta")
+        table.add_column("Rank", style="bold yellow", justify="center", width=6)
+        table.add_column("SBC / Board", style="bold white", width=24)
+        table.add_column("SoC / Arch", style="dim", width=16)
+        table.add_column("Accelerator", style="cyan", width=22)
+        table.add_column("Model (Quant)", style="bold", width=20)
+        table.add_column("Speed (tok/s)", style="bold green", justify="right", width=14)
+        table.add_column("TTFT", style="yellow", justify="right", width=10)
+        table.add_column("Power", style="dim", justify="right", width=8)
+
+        for e in entries:
+            table.add_row(
+                str(e.rank),
+                e.board_name,
+                f"{e.soc} ({e.arch})",
+                e.accelerator,
+                f"{e.model_id} ({e.quant})",
+                f"{e.tok_per_sec:.1f}",
+                f"{e.ttft_ms:.1f}ms",
+                f"{e.power_watts:.1f}W",
+            )
+
+        console.print(table)
+        if export_json_path:
+            out_p = export_leaderboard_json(export_json_path)
+            console.print(f"\n[bold green]✓ Exported leaderboard to {out_p}[/bold green]")
+        return
 
     # 1. Cross-Backend Comparison Mode
     if compare_backends:
