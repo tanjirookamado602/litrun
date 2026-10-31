@@ -480,6 +480,81 @@ Access the Web UI at `http://localhost:8080` and the OpenAI-compatible API at `h
 
 ---
 
+## 🌐 Decentralized Edge Swarm & Mesh Clustering (`litrun swarm`)
+
+Form zero-configuration, peer-to-peer SBC clusters across Raspberry Pis, Orange Pis, and NVIDIA Jetsons using automatic UDP mesh heartbeats:
+
+```bash
+# Check active mesh nodes, thermal state, and advertised accelerators:
+litrun swarm status
+
+# Machine-readable JSON output:
+litrun swarm status --json
+
+# Start discovery beacon daemon on UDP port 50505:
+litrun swarm beacon --port 50505
+
+# Capability-aware task dispatch:
+litrun swarm dispatch -p "Analyze live thermal and sensory telemetry." -t reasoning
+litrun swarm dispatch -p "Inspect camera frame for anomalies." -t vision
+```
+
+The capability-aware scheduler automatically routes vision/VLM tasks to nodes equipped with NPUs (e.g., Orange Pi 5) or GPUs (e.g., Jetson Orin), and routes heavy multi-turn reasoning to nodes with the highest free RAM and nominal thermal states.
+
+---
+
+## 🧬 On-Device LoRA Adaptation & Edge Fine-Tuning (`litrun lora`)
+
+Fine-tune compact edge models directly on Raspberry Pi and Jetson without heavy PyTorch or CUDA dependencies using pure low-rank matrix adaptation:
+
+$$\Delta W = \frac{\alpha}{r} (B \times A)$$
+
+```bash
+# Initialize a lightweight LoRA adapter for SmolLM2 (rank 4, alpha 8.0, ~36 KB footprint):
+litrun lora init -n edge_robot -r 4 -a 8 -m smollm2-135m
+
+# Inspect adapter parameters and RAM footprint:
+litrun lora info -a edge_robot.litlora
+
+# Fine-tune adapter on-device using local JSONL instruction dataset:
+litrun lora train -a edge_robot.litlora -d dataset.jsonl --epochs 3 --lr 0.005
+```
+
+---
+
+## ⚡ In-Process C FFI Inference Engine
+
+For high-frequency robotics control loops and real-time audio pipelines, bypass subprocess creation entirely with direct C FFI ctypes bindings:
+
+```python
+from litrun import Model
+
+# Loads model with in-process C FFI execution
+model = Model.load("smollm2-135m", prefer_ffi=True)
+
+for token in model.stream("Plan obstacle avoidance trajectory."):
+    print(token, end="", flush=True)
+```
+
+---
+
+## 📦 Native Debian & Raspberry Pi OS Packaging (`make deb`)
+
+Generate zero-dependency, standalone `.deb` binary packages for Raspberry Pi OS (Debian Bookworm) and Ubuntu:
+
+```bash
+# Compile native C engine and package into dist/litrun_<version>_<arch>.deb:
+make deb
+
+# Install on target single-board computer:
+sudo dpkg -i dist/litrun_0.6.0_arm64.deb
+
+# Enable systemd edge daemon:
+sudo systemctl enable --now litrun.service
+```
+
+---
+
 ## 📊 Hardware Support Matrix
 
 | Board / SBC | SoC Architecture | Vector Extensions / NPU | Default Speed | Phase |

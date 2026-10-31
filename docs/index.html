@@ -587,6 +587,38 @@
           Deploy anywhere in seconds with <code>docker run -p 8080:8080 ghcr.io/assassinaj602/litrun</code> supporting native ARM64 and AMD64 edge devices.
         </div>
       </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Edge Swarm & P2P Mesh Clustering</div>
+        <div class="feature-desc">
+          Form zero-config SBC clusters across Pis and Jetsons using <code>litrun swarm beacon</code> and capability-aware task router <code>litrun swarm dispatch</code>.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🧬</div>
+        <div class="feature-title">On-Device LoRA Adaptation</div>
+        <div class="feature-desc">
+          Fine-tune compact models directly on SBCs with pure Python low-rank adaptation using <code>litrun lora init</code>, <code>info</code>, and <code>train</code>.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">In-Process C FFI Engine</div>
+        <div class="feature-desc">
+          Eliminate subprocess execution latency with direct <code>ctypes</code> linkage into native shared libraries via <code>Model.load(..., prefer_ffi=True)</code>.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <div class="feature-title">Native Debian (.deb) Packaging</div>
+        <div class="feature-desc">
+          Run <code>make deb</code> to generate zero-dependency <code>.deb</code> packages with systemd service unit and man pages for Raspberry Pi OS & Ubuntu.
+        </div>
+      </div>
     </div>
   </section>
 

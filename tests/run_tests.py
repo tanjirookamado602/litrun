@@ -32,6 +32,10 @@ TEST_MODULES = [
     "tests.python.test_rag",
     "tests.python.test_mqtt",
     "tests.python.test_benchmark",
+    "tests.python.test_engine_ffi",
+    "tests.python.test_swarm",
+    "tests.python.test_lora",
+    "tests.python.test_deb_packaging",
 ]
 
 

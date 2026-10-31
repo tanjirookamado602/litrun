@@ -395,13 +395,23 @@ def get_backend(
     model_id: str = "qwen2.5-0.5b",
     allow_mock: bool = True,
     prefer_server: bool = True,
+    prefer_ffi: bool = False,
 ) -> InferenceBackend:
     """
     Returns optimal inference backend:
-    1. PersistentLlamaServerEngine if `llama-server` is available and weights exist
-    2. LlamaCppEngine if `llama-cli` is available and weights exist
-    3. MockEngine if allow_mock=True
+    1. CtypesLlamaEngine if prefer_ffi is True
+    2. PersistentLlamaServerEngine if `llama-server` is available and weights exist
+    3. LlamaCppEngine if `llama-cli` is available and weights exist
+    4. MockEngine if allow_mock=True
     """
+    if prefer_ffi and model_path and os.path.isfile(model_path):
+        from litrun.engine_ffi import CtypesLlamaEngine
+        return CtypesLlamaEngine(
+            model_path=model_path,
+            threads=threads,
+            context_length=context_length,
+        )
+
     if binary_path and model_path and os.path.isfile(binary_path) and os.path.isfile(model_path):
         # Check if binary is or has companion llama-server
         bin_dir = os.path.dirname(binary_path)

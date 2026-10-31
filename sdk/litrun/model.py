@@ -56,6 +56,7 @@ class Model:
         threads: Optional[int] = None,
         auto_download: bool = True,
         allow_mock: bool = True,
+        prefer_ffi: bool = False,
     ) -> "Model":
         """
         Loads an LLM model, automatically resolving hardware capabilities,
@@ -115,6 +116,7 @@ class Model:
             context_length=entry.default_context,
             model_id=entry.id,
             allow_mock=allow_mock,
+            prefer_ffi=prefer_ffi,
         )
 
         return cls(

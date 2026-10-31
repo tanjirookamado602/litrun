@@ -1,11 +1,14 @@
 CC ?= gcc
 PYTHON ?= python3
 
-.PHONY: all c-core test test-c test-python clean install-dev
+.PHONY: all c-core test test-c test-python clean install-dev deb
 
 all: c-core
 	mkdir -p sdk/litrun/lib
 	cp core/lib/liblitrun_core.so sdk/litrun/lib/
+
+deb: all
+	$(PYTHON) scripts/build_deb.py
 
 c-core:
 	$(MAKE) -C core all

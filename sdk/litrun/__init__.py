@@ -46,6 +46,18 @@ from litrun.benchmark import (
     run_benchmark_matrix,
     run_backend_comparison,
 )
+from litrun.engine_ffi import CtypesLlamaEngine
+from litrun.swarm import (
+    SwarmNode,
+    SwarmMesh,
+    SwarmRouter,
+    SwarmBeacon,
+)
+from litrun.lora import (
+    LoRAConfig,
+    LoRALayer,
+    LoRAAdapter,
+)
 
 __all__ = [
     "Model",
@@ -86,6 +98,14 @@ __all__ = [
     "run_single_benchmark",
     "run_benchmark_matrix",
     "run_backend_comparison",
+    "CtypesLlamaEngine",
+    "SwarmNode",
+    "SwarmMesh",
+    "SwarmRouter",
+    "SwarmBeacon",
+    "LoRAConfig",
+    "LoRALayer",
+    "LoRAAdapter",
     "__version__",
 ]
 
