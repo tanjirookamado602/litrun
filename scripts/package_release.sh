@@ -2,7 +2,11 @@
 # litrun Release Packaging & Asset Bundler
 set -euo pipefail
 
-VERSION=${1:-"0.2.0"}
+if [ -z "${1:-}" ]; then
+    VERSION=$(grep -m1 '^version =' pyproject.toml | cut -d'"' -f2)
+else
+    VERSION="$1"
+fi
 DIST_DIR="dist/releases/v${VERSION}"
 mkdir -p "$DIST_DIR"
 

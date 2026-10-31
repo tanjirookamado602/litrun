@@ -2,7 +2,7 @@
 litrun: Universal Lightweight Embedded Linux AI Runtime
 """
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 from litrun.hardware import HardwareProfile, probe_hardware
 from litrun.governor import GovernorStatus, poll_governor, check_ram_envelope
@@ -63,6 +63,35 @@ from litrun.packaging import (
     create_control_archive,
     create_data_archive,
 )
+from litrun.modelfile import (
+    ParsedModelfile,
+    ModelfileParser,
+    CustomModelManifest,
+    save_custom_model,
+    get_custom_model,
+    list_custom_models,
+    delete_custom_model,
+    export_custom_model_pack,
+    import_custom_model_pack,
+)
+from litrun.quantize import (
+    quantize_weights,
+    quantize_f32_to_q8_0,
+    dequantize_q8_0,
+    quantize_f32_to_q4_0,
+    dequantize_q4_0,
+    estimate_ram_footprint,
+    save_litquant,
+    load_litquant,
+    QuantizationMetrics,
+)
+from litrun.fleet import (
+    FleetNodeProfile,
+    OTAPackage,
+    RolloutState,
+    FleetManager,
+    create_local_fleet_node,
+)
 
 __all__ = [
     "Model",
@@ -114,6 +143,29 @@ __all__ = [
     "build_deb_package",
     "create_control_archive",
     "create_data_archive",
+    "ParsedModelfile",
+    "ModelfileParser",
+    "CustomModelManifest",
+    "save_custom_model",
+    "get_custom_model",
+    "list_custom_models",
+    "delete_custom_model",
+    "export_custom_model_pack",
+    "import_custom_model_pack",
+    "quantize_weights",
+    "quantize_f32_to_q8_0",
+    "dequantize_q8_0",
+    "quantize_f32_to_q4_0",
+    "dequantize_q4_0",
+    "estimate_ram_footprint",
+    "save_litquant",
+    "load_litquant",
+    "QuantizationMetrics",
+    "FleetNodeProfile",
+    "OTAPackage",
+    "RolloutState",
+    "FleetManager",
+    "create_local_fleet_node",
     "__version__",
 ]
 

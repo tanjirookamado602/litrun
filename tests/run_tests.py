@@ -36,6 +36,9 @@ TEST_MODULES = [
     "tests.python.test_swarm",
     "tests.python.test_lora",
     "tests.python.test_deb_packaging",
+    "tests.python.test_modelfile",
+    "tests.python.test_quantize",
+    "tests.python.test_fleet",
 ]
 
 

@@ -6,7 +6,7 @@
 [![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://assassinaj602.github.io/litrun)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20Jetson%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
-[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.7.0)
+[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.8.0)
 
 > **Deploy any LLM to any embedded Linux device in one command.**  
 > A lightweight, universal open-source runtime that eliminates hardware fragmentation for on-device AI across Raspberry Pi, Orange Pi, industrial SoCs, and ARM64 / RISC-V edge boards.
@@ -547,11 +547,100 @@ Generate zero-dependency, standalone `.deb` binary packages for Raspberry Pi OS 
 make deb
 
 # Install on target single-board computer:
-sudo dpkg -i dist/litrun_0.7.0_arm64.deb
+sudo dpkg -i dist/litrun_0.8.0_arm64.deb
 
 # Enable systemd edge daemon:
 sudo systemctl enable --now litrun.service
 ```
+
+---
+
+## 🛠️ Modelfile Specification & Custom Model Packaging (`litrun create`)
+
+Define custom edge agents declaratively with system prompts, parameters, and LoRA adapters using edge Modelfiles:
+
+```dockerfile
+# Modelfile for Autonomous Ground Rover
+FROM smollm2-135m
+PARAMETER temperature 0.25
+PARAMETER max_tokens 256
+PARAMETER top_p 0.85
+SYSTEM """You are Rover-01, an autonomous embedded ground vehicle running on a Raspberry Pi 5. Always output structured JSON actions."""
+ADAPTER ./adapters/rover_nav.litlora
+LICENSE """Apache-2.0"""
+```
+
+```bash
+# Compile and package custom agent into local registry:
+litrun create -f Modelfile -t rover-01:latest
+
+# List locally compiled custom models:
+litrun create list
+
+# Inspect manifest and hyperparameters:
+litrun create inspect rover-01:latest
+
+# Run custom agent immediately:
+litrun run rover-01:latest -p "Status report and battery level."
+
+# Export and import portable .litpack bundles:
+litrun create export rover-01:latest -o rover-01.litpack
+litrun create import rover-01.litpack -t rover-01:imported
+```
+
+---
+
+## ⚡ Edge Quantization & Memory Footprint Evaluator (`litrun quantize`)
+
+Quantize weights into `Q4_0`, `Q4_K_M`, and `Q8_0` block formats with block scales ($d = \max(|x_i|)/\text{range}$), evaluate reconstruction accuracy (MSE / PSNR in dB), and inspect RAM envelopes before deploying:
+
+```bash
+# Evaluate memory envelopes across all quantization formats against SBC RAM ceilings:
+litrun quantize --estimate smollm2-135m
+litrun quantize --estimate qwen2.5-0.5b
+
+# Quantize weights with mathematical reconstruction verification (MSE & PSNR):
+litrun quantize model_weights.bin -t q4_0 -o model_q4.litquant --verify
+
+# Machine-readable telemetry output:
+litrun quantize --estimate smollm2-135m --json
+```
+
+---
+
+## 🌐 Enterprise Edge Fleet Management & OTA Rollouts (`litrun fleet`)
+
+Manage distributed clusters of Raspberry Pis, Orange Pis, and NVIDIA Jetsons with cryptographic signing, canary deployments, and automated rollback:
+
+```bash
+# View real-time cluster health, node telemetry, and RAM headroom:
+litrun fleet status
+
+# Machine-readable cluster status:
+litrun fleet status --json
+
+# Enroll local device into fleet management cluster:
+litrun fleet enroll --node-id node-rpi5-gateway
+
+# Issue a cryptographically signed (HMAC-SHA256) OTA canary deployment:
+litrun fleet deploy smollm2-135m --version 1.2.0 --strategy canary --canary-ratio 0.25
+
+# Evaluate canary telemetry (promotes if healthy, auto-rolls back if throttled):
+litrun fleet evaluate <package_id>
+
+# Emergency instant rollback across fleet:
+litrun fleet rollback
+```
+
+---
+
+## 📡 Live Telemetry Stream & Embedded REST Server
+
+In addition to OpenAI-compatible `/v1/chat/completions`, `litrun serve` streams live hardware telemetry:
+
+- `GET /v1/telemetry/stream` (Server-Sent Events text/event-stream) — Live CPU temperature, RAM headroom, and throttle status.
+- `GET /v1/fleet/status` & `POST /v1/fleet/enroll` — Cluster-wide node health and enrollment.
+- `GET /ui` — Responsive embedded Web UI console.
 
 ---
 

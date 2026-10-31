@@ -7,7 +7,7 @@ Zero external CDNs or runtime dependencies. Fully functional offline on air-gapp
 from __future__ import annotations
 
 
-def get_ui_html(version: str = "0.7.0") -> str:
+def get_ui_html(version: str = "0.8.0") -> str:
     """Returns the complete single-page Web UI dashboard HTML string."""
     return f"""<!DOCTYPE html>
 <html lang="en">

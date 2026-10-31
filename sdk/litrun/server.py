@@ -133,6 +133,47 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
             self._send_json(200, {"object": "list", "data": data})
             return
 
+        # Live SSE Telemetry Stream
+        if self.path == "/v1/telemetry/stream":
+            self.send_response(200)
+            self.send_header("Content-Type", "text/event-stream")
+            self.send_header("Cache-Control", "no-cache")
+            self.send_header("Connection", "close")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.end_headers()
+
+            try:
+                for _ in range(2):
+                    hw = probe_hardware()
+                    gov = poll_governor()
+                    data = {
+                        "timestamp": time.time(),
+                        "board_id": hw.profile_id,
+                        "cpu_temp_c": getattr(gov, "temp_c", 45.0),
+                        "ram_avail_mb": gov.ram_avail_mb,
+                        "ram_total_mb": hw.ram_total_mb,
+                        "thermal_state": 0 if gov.thermal_state == "nominal" else 1,
+                        "recommended_threads": gov.recommended_threads,
+                    }
+                    self.wfile.write(f"data: {json.dumps(data)}\n\n".encode("utf-8"))
+                    self.wfile.flush()
+                    time.sleep(0.05)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
+            self.close_connection = True
+            return
+
+        # Fleet Cluster Status
+        if self.path == "/v1/fleet/status":
+            from litrun.fleet import FleetManager
+            mgr = FleetManager()
+            summary = mgr.fleet_telemetry_summary()
+            self._send_json(200, {
+                "summary": summary,
+                "nodes": [n.to_dict() for n in mgr.nodes.values()],
+            })
+            return
+
         self._send_json(404, {"error": {"message": f"Path {self.path} not found"}})
 
     def do_POST(self):
@@ -272,6 +313,22 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
                 "tokens_per_second": tps,
                 "result_sample": result_text[:80],
             })
+
+        elif self.path == "/v1/fleet/enroll":
+            content_len = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_len) if content_len > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8")) if body else {}
+            except Exception as e:
+                self._send_json(400, {"error": f"Invalid JSON payload: {e}"})
+                return
+
+            from litrun.fleet import FleetManager, FleetNodeProfile
+            mgr = FleetManager()
+            profile = FleetNodeProfile.from_dict(payload)
+            mgr.enroll_node(profile)
+            self._send_json(200, {"status": "enrolled", "node_id": profile.node_id})
+
         else:
             self._send_json(404, {"error": {"message": f"Endpoint {self.path} not found"}})
 

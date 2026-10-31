@@ -64,10 +64,17 @@ class Model:
         """
         hw = probe_hardware()
         entry = get_model(model_id)
+        custom_manifest = None
+
+        if not entry:
+            from litrun.modelfile import get_custom_model
+            custom_manifest = get_custom_model(model_id)
+            if custom_manifest:
+                entry = get_model(custom_manifest.base_model)
 
         if not entry:
             raise ValueError(
-                f"Model '{model_id}' not found in registry. "
+                f"Model '{model_id}' not found in registry or custom models. "
                 f"Run 'litrun list' to see available models."
             )
 
@@ -119,7 +126,7 @@ class Model:
             prefer_ffi=prefer_ffi,
         )
 
-        return cls(
+        instance = cls(
             entry=entry,
             variant=variant,
             hw=hw,
@@ -129,9 +136,23 @@ class Model:
             threads=final_threads,
         )
 
+        if custom_manifest:
+            instance.custom_manifest = custom_manifest
+            if custom_manifest.system_prompt:
+                instance.session.system_prompt = custom_manifest.system_prompt
+            if custom_manifest.parameters:
+                instance.default_parameters = custom_manifest.parameters
+
+        return instance
+
     def stream(self, prompt: str, **kwargs) -> Generator[str, None, None]:
         """Streams response tokens for a single prompt."""
         from litrun.grammar import resolve_grammar, STANDARD_JSON_GBNF
+
+        if hasattr(self, "default_parameters") and self.default_parameters:
+            merged = dict(self.default_parameters)
+            merged.update(kwargs)
+            kwargs = merged
 
         grammar = kwargs.get("grammar")
         response_format = kwargs.get("response_format")

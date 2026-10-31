@@ -18,6 +18,9 @@ from litrun.cli.cmd_embed import embed_cmd
 from litrun.cli.cmd_mqtt import mqtt_cmd
 from litrun.cli.cmd_swarm import swarm_cmd
 from litrun.cli.cmd_lora import lora_cmd
+from litrun.cli.cmd_create import create_cmd
+from litrun.cli.cmd_quantize import quantize_cmd
+from litrun.cli.cmd_fleet import fleet_cmd
 
 console = Console()
 
@@ -37,6 +40,9 @@ cli.add_command(embed_cmd, name="embed")
 cli.add_command(mqtt_cmd, name="mqtt")
 cli.add_command(swarm_cmd, name="swarm")
 cli.add_command(lora_cmd, name="lora")
+cli.add_command(create_cmd, name="create")
+cli.add_command(quantize_cmd, name="quantize")
+cli.add_command(fleet_cmd, name="fleet")
 cli.add_command(pull_cmd, name="pull")
 cli.add_command(list_cmd, name="list")
 cli.add_command(serve_cmd, name="serve")

@@ -1,6 +1,6 @@
 {
   "name": "litrun",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Universal lightweight embedded Linux AI runtime for Raspberry Pi, Orange Pi, and ARM64/RISC-V SoCs",
   "main": "index.js",
   "bin": {

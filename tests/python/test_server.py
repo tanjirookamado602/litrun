@@ -163,6 +163,44 @@ def test_rest_server_endpoints():
             parsed = json.loads(content_str)
             assert parsed.get("status") == "ok"
 
+        # 13. Test GET /v1/telemetry/stream (SSE)
+        with urllib.request.urlopen(f"{base_url}/v1/telemetry/stream") as resp:
+            assert resp.status == 200
+            content = resp.read().decode("utf-8")
+            assert "data: " in content
+            assert "cpu_temp_c" in content
+
+        # 14. Test GET /v1/fleet/status
+        with urllib.request.urlopen(f"{base_url}/v1/fleet/status") as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert "summary" in data
+            assert "nodes" in data
+
+        # 15. Test POST /v1/fleet/enroll
+        enroll_post = json.dumps({
+            "node_id": "test-web-node-01",
+            "hostname": "pi5-box",
+            "board_name": "Raspberry Pi 5",
+            "soc": "BCM2712",
+            "ram_total_mb": 8192,
+            "ram_avail_mb": 4096,
+            "cpu_temp_c": 49.0,
+            "thermal_state": 0,
+            "current_model": "smollm2-135m",
+            "current_model_version": "1.0.0",
+        }).encode("utf-8")
+        req_enroll = urllib.request.Request(
+            f"{base_url}/v1/fleet/enroll",
+            data=enroll_post,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_enroll) as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert data["status"] == "enrolled"
+            assert data["node_id"] == "test-web-node-01"
+
     finally:
         t = threading.Thread(target=server.shutdown, daemon=True)
         t.start()
