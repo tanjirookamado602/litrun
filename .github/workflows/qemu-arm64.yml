@@ -25,8 +25,9 @@ jobs:
 
       - name: Execute ARM64 Native Tests under QEMU
         run: |
-          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_fingerprint
-          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_governor
-          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_rknn
-          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_jetson
-          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/litrun-probe
+          cd core
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./bin/test_fingerprint
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./bin/test_governor
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./bin/test_rknn
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./bin/test_jetson
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./bin/litrun-probe
