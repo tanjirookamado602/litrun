@@ -10,6 +10,7 @@ from rich.panel import Panel
 from rich.text import Text
 from litrun.hardware import probe_hardware
 from litrun.governor import poll_governor
+from litrun.rknn import probe_rknn
 
 console = Console()
 
@@ -104,8 +105,16 @@ def inspect_cmd(json_output: bool):
         s, note = fmt_flag(hw.has_avx512, "512-bit vector registers")
         vec_table.add_row("x86 AVX-512", s, note)
 
-    if hw.has_rknn:
+    rknn = probe_rknn()
+    if rknn.is_available:
+        vec_table.add_row(
+            "Rockchip RKNN NPU",
+            "[bold green]DETECTED[/bold green]",
+            f"{rknn.soc} {rknn.npu_cores}-Core NPU ({rknn.peak_tops} TOPS @ {rknn.cur_freq_mhz}MHz)"
+        )
+    elif hw.has_rknn:
         vec_table.add_row("Rockchip RKNN NPU", "[bold green]DETECTED[/bold green]", "/dev/rknpu hardware node accessible")
+
     if hw.has_nvdla:
         vec_table.add_row("NVIDIA NVDLA", "[bold green]DETECTED[/bold green]", "Jetson deep learning accelerator accessible")
 

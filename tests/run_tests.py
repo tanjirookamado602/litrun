@@ -27,6 +27,7 @@ TEST_MODULES = [
     "tests.python.test_tools",
     "tests.python.test_hear",
     "tests.python.test_ros2",
+    "tests.python.test_rknn",
 ]
 
 

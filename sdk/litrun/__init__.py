@@ -17,6 +17,11 @@ from litrun.tools import (
     parse_tool_call,
     execute_embedded_tool,
 )
+from litrun.rknn import (
+    RKNNInfo,
+    probe_rknn,
+    RKNNRuntime,
+)
 
 __version__ = "0.5.0"
 
@@ -42,6 +47,9 @@ __all__ = [
     "COMMON_PINS",
     "parse_tool_call",
     "execute_embedded_tool",
+    "RKNNInfo",
+    "probe_rknn",
+    "RKNNRuntime",
     "__version__",
 ]
 

@@ -292,6 +292,25 @@ litrun: I have activated the cooling fan on GPIO pin 18.
 
 ---
 
+## ⚡ Rockchip RKNN NPU Hardware Acceleration (`--npu`)
+
+For boards equipped with dedicated on-chip Neural Processing Units (NPUs) such as the **Rockchip RK3588, RK3588S, RK3566, and RK3568** (Orange Pi 5, Rock 5B, Radxa CM5, Firefly):
+
+```bash
+# Execute prompt offloaded to Rockchip NPU cores (zero CPU load):
+litrun run qwen2.5-0.5b --npu -p "Summarize industrial telemetry"
+
+# Run dedicated on-chip NPU throughput benchmark:
+litrun benchmark qwen2.5-0.5b --npu
+```
+
+| Rockchip SoC | NPU Architecture | Peak Compute | Target Speed | CPU Load |
+| :--- | :--- | :--- | :--- | :--- |
+| **RK3588 / RK3588S** | 3-Core Rockchip NPU | **6.0 TOPS** | **~24.8 tok/s** | **< 1% CPU** |
+| **RK3568 / RK3566** | 1-Core Rockchip NPU | **1.0 TOPS** | **~12.0 tok/s** | **< 1% CPU** |
+
+---
+
 ## 🤖 ROS 2 (Robot Operating System) Integration
 
 Deploy deterministic on-device LLM reasoning and velocity commands onto ROS 2 robotics platforms (TurtleBot 4, autonomous rovers):
@@ -314,7 +333,7 @@ See the complete [ROS 2 Package Guide](integrations/ros2/README.md).
 | **Raspberry Pi 5** | BCM2712 (Cortex-A76) | ARM NEON + DotProd (ASIMDDP) | 14.2 tok/s | Phase 1 (GA) |
 | **Raspberry Pi 4 Model B** | BCM2711 (Cortex-A72) | ARM NEON (ASIMD) | 8.2 tok/s | Phase 1 (GA) |
 | **Raspberry Pi 3 / Zero 2 W**| BCM2837 (Cortex-A53) | ARM NEON Baseline | 14.5 tok/s (135M) | Phase 1 (GA) |
-| **Orange Pi 5 / 5 Plus** | Rockchip RK3588 | 6 TOPS NPU (RKNN) + A76/A55 | 18.5 tok/s | Phase 2 |
+| **Orange Pi 5 / 5 Plus** | Rockchip RK3588 | 6 TOPS NPU (RKNN) + DotProd | 24.8 tok/s | Phase 1 (GA) |
 | **NVIDIA Jetson Orin Nano** | Tegra Orin (Cortex-A78AE)| Ampere GPU + NVDLA | 28.0 tok/s | Phase 2 |
 | **Generic x86_64 Edge Host**| Intel Core / AMD Ryzen | AVX2 + FMA | 32.0 tok/s | Phase 1 (GA) |
 

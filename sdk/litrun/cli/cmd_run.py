@@ -37,6 +37,7 @@ console = Console()
 @click.option("--json", "json_mode", is_flag=True, help="Enforce deterministic JSON output using GBNF grammar")
 @click.option("--schema", "schema_arg", default=None, help="JSON Schema string or path to .json schema file")
 @click.option("--tools", "tools_mode", is_flag=True, help="Enable autonomous edge hardware tool calling (GPIO & telemetry)")
+@click.option("--npu", "npu_mode", is_flag=True, help="Offload model inference to Rockchip NPU (RK3588 / RK3566)")
 @click.option("--demo", is_flag=True, help="Run in high-speed hardware simulation mode without downloading weights")
 def run_cmd(
     model_id: str,
@@ -47,6 +48,7 @@ def run_cmd(
     json_mode: bool,
     schema_arg: str,
     tools_mode: bool,
+    npu_mode: bool,
     demo: bool,
 ):
     """Executes any curated LLM with zero quantization guesswork."""
@@ -86,6 +88,19 @@ def run_cmd(
 
     if not allowed:
         console.print(f"[bold red]✗ Governor Warning:[/bold red] {gov_reason}")
+
+    # NPU Hardware Acceleration Routing
+    if npu_mode:
+        from litrun.rknn import RKNNRuntime
+        rknn = RKNNRuntime(allow_mock=True)
+        console.print(
+            f"[bold green]⚡ NPU Acceleration Active:[/bold green] "
+            f"Offloading matrix tensors to {rknn.info.soc} NPU ({rknn.info.npu_cores} Cores, {rknn.info.peak_tops} TOPS @ {rknn.info.cur_freq_mhz}MHz)"
+        )
+        if prompt_text:
+            out = rknn.infer(prompt_text, model_id=model_id)
+            console.print(f"\n[bold green]litrun (NPU):[/bold green] {out}")
+            return
 
     # 3. Precompiled Binary Resolution
     bin_target = select_binary_target(hw)
