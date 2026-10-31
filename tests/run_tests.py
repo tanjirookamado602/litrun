@@ -31,6 +31,7 @@ TEST_MODULES = [
     "tests.python.test_jetson",
     "tests.python.test_rag",
     "tests.python.test_mqtt",
+    "tests.python.test_benchmark",
 ]
 
 

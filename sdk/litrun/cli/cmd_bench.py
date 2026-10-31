@@ -1,8 +1,11 @@
 """
 litrun benchmark: Real-time latency, throughput, and thermal decay telemetry
+Supports single-model benchmarks, multi-model matrix evaluations, cross-backend comparisons,
+and structured JSON report exports.
 """
 
 import time
+from typing import Optional
 import click
 from rich.console import Console
 from rich.table import Table
@@ -12,6 +15,13 @@ from litrun.hardware import probe_hardware
 from litrun.governor import poll_governor
 from litrun.registry import get_model, select_optimal_variant
 from litrun.model import Model
+from litrun.benchmark import (
+    run_single_benchmark,
+    run_benchmark_matrix,
+    run_backend_comparison,
+    BenchmarkReport,
+    BenchmarkResult,
+)
 
 console = Console()
 
@@ -21,14 +31,93 @@ console = Console()
 @click.option("-n", "--tokens", default=64, type=int, help="Number of benchmark tokens to generate")
 @click.option("--npu", "npu_mode", is_flag=True, help="Benchmark using Rockchip NPU acceleration")
 @click.option("--gpu", "--jetson", "gpu_mode", is_flag=True, help="Benchmark using NVIDIA Jetson GPU/NVDLA acceleration")
-def bench_cmd(model_id: str, tokens: int, npu_mode: bool, gpu_mode: bool):
+@click.option("--all", "all_models", is_flag=True, help="Run multi-model benchmark matrix (smollm2-135m, smollm2-360m, qwen2.5-0.5b)")
+@click.option("--compare", "compare_backends", is_flag=True, help="Compare CPU vs NPU vs GPU backends side-by-side")
+@click.option("-m", "--models", "model_list_str", default=None, help="Comma-separated model IDs to benchmark")
+@click.option("--export-json", "export_json_path", type=click.Path(), default=None, help="Path to export JSON benchmark report")
+def bench_cmd(
+    model_id: str,
+    tokens: int,
+    npu_mode: bool,
+    gpu_mode: bool,
+    all_models: bool,
+    compare_backends: bool,
+    model_list_str: Optional[str],
+    export_json_path: Optional[str],
+):
     """Measures on-device tokens/sec, time-to-first-token (TTFT), and thermal delta."""
-    title = Text(f"⚡ litrun On-Device Inference Benchmark: {model_id}", style="bold cyan")
+    title = Text(f"⚡ litrun On-Device Inference Benchmark", style="bold cyan")
     console.print(Panel(title, expand=False))
 
     hw = probe_hardware()
-    gov_before = poll_governor()
 
+    # 1. Cross-Backend Comparison Mode
+    if compare_backends:
+        console.print(f"[bold cyan]Running Cross-Backend Benchmark Comparison on {hw.board_name}...[/bold cyan]\n")
+        report = run_backend_comparison(model_id=model_id, tokens=tokens, allow_mock=True)
+
+        table = Table(title="Hardware Accelerator Comparison Matrix", show_header=True, header_style="bold magenta")
+        table.add_column("Backend / Accelerator", style="bold white", width=22)
+        table.add_column("Variant / Quant", style="cyan", width=16)
+        table.add_column("Throughput (tok/s)", style="bold green", width=20)
+        table.add_column("Latency (TTFT)", style="yellow", width=16)
+        table.add_column("Memory (MB)", style="dim", width=14)
+
+        for res in report.results:
+            backend_label = {
+                "cpu": "CPU (NEON / DotProd)",
+                "rknn_npu": "Rockchip NPU (6 TOPS)",
+                "jetson_cuda": "NVIDIA Jetson (CUDA)",
+            }.get(res.backend, res.backend)
+
+            table.add_row(
+                backend_label,
+                res.variant,
+                f"{res.throughput_tok_s:.2f} tok/s",
+                f"{res.ttft_ms:.1f} ms",
+                f"{res.memory_mb} MB",
+            )
+
+        console.print(table)
+        if export_json_path:
+            report.save_json(export_json_path)
+            console.print(f"\n[bold green]✓ Exported benchmark report to {export_json_path}[/bold green]")
+        return
+
+    # 2. Multi-Model Matrix Mode
+    if all_models or model_list_str:
+        if model_list_str:
+            target_models = [m.strip() for m in model_list_str.split(",") if m.strip()]
+        else:
+            target_models = ["smollm2-135m", "smollm2-360m", "qwen2.5-0.5b"]
+
+        backend_type = "gpu" if gpu_mode else ("npu" if npu_mode else "cpu")
+        console.print(f"[bold cyan]Running Multi-Model Benchmark Matrix ({len(target_models)} models) on {hw.board_name}...[/bold cyan]\n")
+        report = run_benchmark_matrix(model_ids=target_models, tokens=tokens, backend=backend_type, allow_mock=True)
+
+        table = Table(title="Multi-Model Inference Performance Matrix", show_header=True, header_style="bold magenta")
+        table.add_column("Model ID", style="bold white", width=18)
+        table.add_column("Quantization", style="cyan", width=14)
+        table.add_column("Throughput (tok/s)", style="bold green", width=20)
+        table.add_column("Latency (TTFT)", style="yellow", width=16)
+        table.add_column("Memory Envelope", style="dim", width=16)
+
+        for res in report.results:
+            table.add_row(
+                res.model_id,
+                res.variant,
+                f"{res.throughput_tok_s:.2f} tok/s",
+                f"{res.ttft_ms:.1f} ms",
+                f"{res.memory_mb} MB",
+            )
+
+        console.print(table)
+        if export_json_path:
+            report.save_json(export_json_path)
+            console.print(f"\n[bold green]✓ Exported benchmark report to {export_json_path}[/bold green]")
+        return
+
+    # 3. NVIDIA Jetson GPU Mode
     if gpu_mode:
         from litrun.jetson import JetsonRuntime
         jetson = JetsonRuntime(allow_mock=True)
@@ -43,8 +132,20 @@ def bench_cmd(model_id: str, tokens: int, npu_mode: bool, gpu_mode: bool):
         table.add_row("Hardware Engines", f"{jetson.info.cuda_cores} CUDA + {jetson.info.nvdla_engines}x NVDLA", "Active")
         table.add_row("JetPack L4T Version", jetson.info.jetpack_version, "Driver interface")
         console.print(table)
+
+        if export_json_path:
+            res = run_single_benchmark(model_id=model_id, tokens=tokens, backend="gpu", allow_mock=True)
+            report = BenchmarkReport(
+                litrun_version="0.5.0",
+                timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                hardware=hw.to_dict(),
+                results=[res],
+            )
+            report.save_json(export_json_path)
+            console.print(f"\n[bold green]✓ Exported benchmark report to {export_json_path}[/bold green]")
         return
 
+    # 4. Rockchip NPU Mode
     if npu_mode:
         from litrun.rknn import RKNNRuntime
         rknn = RKNNRuntime(allow_mock=True)
@@ -60,14 +161,27 @@ def bench_cmd(model_id: str, tokens: int, npu_mode: bool, gpu_mode: bool):
         table.add_row("NPU Clock Frequency", f"{rknn.info.cur_freq_mhz} MHz", "Max 1000 MHz")
         table.add_row("Driver Interface", rknn.info.driver_version, "librknnrt")
         console.print(table)
+
+        if export_json_path:
+            res = run_single_benchmark(model_id=model_id, tokens=tokens, backend="npu", allow_mock=True)
+            report = BenchmarkReport(
+                litrun_version="0.5.0",
+                timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                hardware=hw.to_dict(),
+                results=[res],
+            )
+            report.save_json(export_json_path)
+            console.print(f"\n[bold green]✓ Exported benchmark report to {export_json_path}[/bold green]")
         return
 
+    # 5. Standard CPU Mode
     entry = get_model(model_id)
     if not entry:
         console.print(f"[bold red]✗ Model '{model_id}' not found.[/bold red]")
         return
 
     variant, _ = select_optimal_variant(entry, hw)
+    gov_before = poll_governor()
 
     console.print(f"Target Board: [bold white]{hw.board_name}[/bold white] ({hw.profile_id})")
     console.print(f"Selected Quant: [bold cyan]{variant.quant}[/bold cyan] ({variant.size_mb} MB)")
@@ -84,7 +198,7 @@ def bench_cmd(model_id: str, tokens: int, npu_mode: bool, gpu_mode: bool):
         first_token_time = None
         token_count = 0
 
-        for chunk in model.stream(benchmark_prompt, max_tokens=tokens):
+        for _ in model.stream(benchmark_prompt, max_tokens=tokens):
             if first_token_time is None:
                 first_token_time = time.perf_counter()
             token_count += 1
@@ -110,6 +224,29 @@ def bench_cmd(model_id: str, tokens: int, npu_mode: bool, gpu_mode: bool):
         table.add_row("Memory Consumption", f"{variant.size_mb + 250} MB", f"Envelope: {hw.ram_avail_mb}MB free")
 
         console.print(table)
+
+        if export_json_path:
+            res = BenchmarkResult(
+                model_id=model_id,
+                variant=variant.quant,
+                backend="cpu",
+                tokens_generated=token_count,
+                throughput_tok_s=round(tok_per_sec, 2),
+                ttft_ms=round(ttft_ms, 1),
+                total_time_s=round(t_end - t_start, 3),
+                memory_mb=variant.size_mb + 250,
+                temp_start_c=round(gov_before.temp_c, 1),
+                temp_end_c=round(gov_after.temp_c, 1),
+                temp_delta_c=round(temp_delta, 1),
+                timestamp=time.time(),
+            )
+            report = BenchmarkReport(
+                litrun_version="0.5.0",
+                timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                hardware=hw.to_dict(),
+                results=[res],
+            )
+            report.save_json(export_json_path)
+            console.print(f"\n[bold green]✓ Exported benchmark report to {export_json_path}[/bold green]")
     finally:
         model.close()
-

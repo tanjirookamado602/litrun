@@ -410,6 +410,76 @@ See the complete [ROS 2 Package Guide](integrations/ros2/README.md).
 
 ---
 
+## 📊 Automated Benchmark Suite & Performance Reports
+
+Measure on-device inference speed (tok/s), time-to-first-token latency (TTFT), RAM envelope, and thermal delta across single models, curated model matrices, or hardware accelerator backends:
+
+```bash
+# Benchmark single model with tokens & export telemetry to JSON:
+litrun benchmark qwen2.5-0.5b -n 64 --export-json bench_qwen.json
+
+# Run multi-model performance matrix across curated edge models:
+litrun benchmark --all --export-json matrix_report.json
+
+# Compare CPU vs Rockchip NPU vs NVIDIA Jetson GPU backends side-by-side:
+litrun benchmark --compare
+```
+
+```text
+                     Hardware Accelerator Comparison Matrix                     
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━┓
+┃ Backend /         ┃ Variant /   ┃ Throughput      ┃ Latency      ┃ Memory    ┃
+┃ Accelerator       ┃ Quant       ┃ (tok/s)         ┃ (TTFT)       ┃ (MB)      ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━┩
+│ CPU (NEON/DotProd)│ Q4_K_M      │ 14.20 tok/s     │ 25.0 ms      │ 718 MB    │
+│ Rockchip NPU      │ INT8/INT4   │ 24.80 tok/s     │ 28.4 ms      │ 680 MB    │
+│ NVIDIA Jetson     │ FP16/INT8   │ 28.50 tok/s     │ 21.2 ms      │ 750 MB    │
+└───────────────────┴─────────────┴─────────────────┴──────────────┴───────────┘
+```
+
+Programmatic Python Benchmark API:
+```python
+from litrun.benchmark import run_backend_comparison, run_benchmark_matrix
+
+# Run automated cross-backend comparison report
+report = run_backend_comparison(model_id="qwen2.5-0.5b")
+report.save_json("benchmark_summary.json")
+```
+
+---
+
+## 🐳 Multi-Arch Docker Edge Containers (AMD64 & ARM64)
+
+Deploy `litrun` into edge container clusters, balenaOS, Kubernetes (K3s), or Docker with precompiled multi-arch images (`linux/amd64` and `linux/arm64`):
+
+```bash
+# Pull and launch the Visual Web UI & OpenAI REST server:
+docker run -d -p 8080:8080 --name litrun ghcr.io/assassinaj602/litrun:latest
+
+# Or launch via Docker Compose:
+docker compose up -d
+```
+
+Compose configuration (`docker-compose.yml`):
+```yaml
+services:
+  litrun:
+    image: ghcr.io/assassinaj602/litrun:latest
+    container_name: litrun
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - LITRUN_MODEL=qwen2.5-0.5b
+    volumes:
+      - ./data:/data
+      - litrun_cache:/home/litrun/.cache/litrun
+```
+
+Access the Web UI at `http://localhost:8080` and the OpenAI-compatible API at `http://localhost:8080/v1/chat/completions`.
+
+---
+
 ## 📊 Hardware Support Matrix
 
 | Board / SBC | SoC Architecture | Vector Extensions / NPU | Default Speed | Phase |

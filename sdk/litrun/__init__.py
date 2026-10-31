@@ -2,6 +2,8 @@
 litrun: Universal Lightweight Embedded Linux AI Runtime
 """
 
+__version__ = "0.5.0"
+
 from litrun.hardware import HardwareProfile, probe_hardware
 from litrun.governor import GovernorStatus, poll_governor, check_ram_envelope
 from litrun.model import Model
@@ -37,8 +39,13 @@ from litrun.mqtt import (
     build_mqtt_connect_packet,
     build_mqtt_publish_packet,
 )
-
-__version__ = "0.5.0"
+from litrun.benchmark import (
+    BenchmarkResult,
+    BenchmarkReport,
+    run_single_benchmark,
+    run_benchmark_matrix,
+    run_backend_comparison,
+)
 
 __all__ = [
     "Model",
@@ -74,6 +81,11 @@ __all__ = [
     "MQTTTelemetryAgent",
     "build_mqtt_connect_packet",
     "build_mqtt_publish_packet",
+    "BenchmarkResult",
+    "BenchmarkReport",
+    "run_single_benchmark",
+    "run_benchmark_matrix",
+    "run_backend_comparison",
     "__version__",
 ]
 
