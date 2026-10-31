@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>litrun_ros</name>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
   <description>Native ROS 2 Edge AI Node for Autonomous Robotics Perception and Actuation powered by litrun</description>
   <maintainer email="dev@litrun.dev">litrun Contributors</maintainer>
   <license>MIT</license>

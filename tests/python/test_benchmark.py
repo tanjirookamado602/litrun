@@ -119,3 +119,4 @@ def test_cli_benchmark_matrix_and_compare():
     assert "Hardware Accelerator Comparison Matrix" in res_comp.output
     assert "Rockchip NPU" in res_comp.output
     assert "NVIDIA Jetson" in res_comp.output
+

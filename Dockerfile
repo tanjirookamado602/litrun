@@ -74,3 +74,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
 
 ENTRYPOINT ["litrun"]
 CMD ["ui", "--host", "0.0.0.0", "--port", "8080"]
+

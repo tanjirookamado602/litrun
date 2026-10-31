@@ -15,6 +15,7 @@ from litrun.hardware import probe_hardware
 from litrun.governor import poll_governor
 from litrun.registry import get_model, select_optimal_variant
 from litrun.model import Model
+from litrun import __version__
 from litrun.benchmark import (
     run_single_benchmark,
     run_benchmark_matrix,
@@ -136,7 +137,7 @@ def bench_cmd(
         if export_json_path:
             res = run_single_benchmark(model_id=model_id, tokens=tokens, backend="gpu", allow_mock=True)
             report = BenchmarkReport(
-                litrun_version="0.5.0",
+                litrun_version=__version__,
                 timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 hardware=hw.to_dict(),
                 results=[res],
@@ -165,7 +166,7 @@ def bench_cmd(
         if export_json_path:
             res = run_single_benchmark(model_id=model_id, tokens=tokens, backend="npu", allow_mock=True)
             report = BenchmarkReport(
-                litrun_version="0.5.0",
+                litrun_version=__version__,
                 timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 hardware=hw.to_dict(),
                 results=[res],
@@ -241,7 +242,7 @@ def bench_cmd(
                 timestamp=time.time(),
             )
             report = BenchmarkReport(
-                litrun_version="0.5.0",
+                litrun_version=__version__,
                 timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 hardware=hw.to_dict(),
                 results=[res],
