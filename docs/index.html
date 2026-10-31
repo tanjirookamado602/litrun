@@ -320,7 +320,7 @@
 
 <div class="container">
   <header>
-    <div class="badge">⚡ v0.5.0 Live • Speech, Vision, ROS 2, Web UI & Home Assistant</div>
+    <div class="badge">⚡ v0.5.0 Live • Jetson CUDA, Rockchip NPU, Local RAG, Industrial MQTT & Web UI</div>
     <h1>Deploy any LLM, Vision, or Speech Model on Embedded Linux</h1>
     <p class="subtitle">
       Zero manual compilation, sub-2ms C99 hardware fingerprinting, autonomous GPIO tool calling, visual Web UI console, ROS 2 robotics node, and active Linux memory governor protection across Raspberry Pi, Orange Pi, and ARM64 single-board computers.
@@ -545,6 +545,30 @@
         <div class="feature-title">Precompiled Multi-Arch</div>
         <div class="feature-desc">
           Instant prebuilt binaries tuned for Cortex-A72 NEON, Cortex-A76 DotProd, and x86 AVX2—no CMake or 45-minute compiles.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏎️</div>
+        <div class="feature-title">NVIDIA Jetson Hardware Acceleration</div>
+        <div class="feature-desc">
+          Run <code>litrun run --gpu</code> or <code>--jetson</code> to leverage 1024 Ampere CUDA tensor cores and dual NVDLA on Tegra Orin & Xavier at 28.5+ tok/s.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📚</div>
+        <div class="feature-title">Offline Edge Vector Search & Local RAG</div>
+        <div class="feature-desc">
+          Run <code>litrun embed</code> and <code>litrun run --rag</code> for embedded SQLite vector retrieval with zero cloud dependency and sub-5ms query times.
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🏭</div>
+        <div class="feature-title">Industrial MQTT Telemetry Daemon</div>
+        <div class="feature-desc">
+          Run <code>litrun mqtt --demo</code> for autonomous real-time sensor stream anomaly reasoning and automated MQTT actuator dispatch.
         </div>
       </div>
     </div>

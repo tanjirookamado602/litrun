@@ -14,6 +14,8 @@ from litrun.cli.cmd_ui import ui_cmd
 from litrun.cli.cmd_bench import bench_cmd
 from litrun.cli.cmd_see import see_cmd
 from litrun.cli.cmd_hear import hear_cmd
+from litrun.cli.cmd_embed import embed_cmd
+from litrun.cli.cmd_mqtt import mqtt_cmd
 
 console = Console()
 
@@ -29,6 +31,8 @@ cli.add_command(inspect_cmd, name="inspect")
 cli.add_command(run_cmd, name="run")
 cli.add_command(see_cmd, name="see")
 cli.add_command(hear_cmd, name="hear")
+cli.add_command(embed_cmd, name="embed")
+cli.add_command(mqtt_cmd, name="mqtt")
 cli.add_command(pull_cmd, name="pull")
 cli.add_command(list_cmd, name="list")
 cli.add_command(serve_cmd, name="serve")

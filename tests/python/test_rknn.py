@@ -43,3 +43,4 @@ def test_cli_benchmark_npu():
     assert "Rockchip NPU Inference Benchmark Results" in result.output
     assert "24.80 tok/s" in result.output
     assert "Zero CPU load" in result.output
+

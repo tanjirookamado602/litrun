@@ -22,6 +22,21 @@ from litrun.rknn import (
     probe_rknn,
     RKNNRuntime,
 )
+from litrun.jetson import (
+    JetsonInfo,
+    probe_jetson,
+    JetsonRuntime,
+)
+from litrun.rag import (
+    EdgeVectorStore,
+    compute_lightweight_embedding,
+    build_rag_augmented_prompt,
+)
+from litrun.mqtt import (
+    MQTTTelemetryAgent,
+    build_mqtt_connect_packet,
+    build_mqtt_publish_packet,
+)
 
 __version__ = "0.5.0"
 
@@ -50,6 +65,15 @@ __all__ = [
     "RKNNInfo",
     "probe_rknn",
     "RKNNRuntime",
+    "JetsonInfo",
+    "probe_jetson",
+    "JetsonRuntime",
+    "EdgeVectorStore",
+    "compute_lightweight_embedding",
+    "build_rag_augmented_prompt",
+    "MQTTTelemetryAgent",
+    "build_mqtt_connect_packet",
+    "build_mqtt_publish_packet",
     "__version__",
 ]
 

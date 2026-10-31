@@ -168,3 +168,4 @@ class RKNNRuntime:
             f"[Rockchip NPU {self.info.soc} ({self.info.npu_cores}-Core, {self.info.peak_tops} TOPS)] "
             f"Processed prompt with zero CPU load: {prompt[:60]}..."
         )
+

@@ -37,3 +37,4 @@ int litrun_rknn_to_json(const litrun_rknn_info_t *info, char *buffer, size_t max
 #endif
 
 #endif /* LITRUN_RKNN_ADAPTER_H */
+

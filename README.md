@@ -5,7 +5,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/litrun.svg?color=blue)](https://pypi.org/project/litrun/)
 [![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://assassinaj602.github.io/litrun)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
+[![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20Jetson%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
 [![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.5.0)
 
 > **Deploy any LLM to any embedded Linux device in one command.**  
@@ -311,6 +311,90 @@ litrun benchmark qwen2.5-0.5b --npu
 
 ---
 
+## 🚀 NVIDIA Jetson CUDA & NVDLA Hardware Acceleration (`--gpu` / `--jetson`)
+
+Accelerate inference on NVIDIA Jetson embedded platforms (Jetson Orin Nano, Orin NX, AGX Orin, Xavier NX) utilizing unified LPDDR5 memory, Ampere CUDA tensor cores, and dual Deep Learning Accelerators (NVDLA):
+
+```bash
+# Run model with GPU / NVDLA acceleration:
+litrun run qwen2.5-0.5b --gpu -p "Analyze robotic arm trajectory"
+
+# Or explicitly pass the --jetson flag:
+litrun run qwen2.5-0.5b --jetson
+
+# Benchmark sustained CUDA throughput:
+litrun benchmark qwen2.5-0.5b --gpu
+```
+
+| Jetson Board | Tegra Architecture | Compute Cores | Peak FP16 Compute | Sustained Speed |
+| :--- | :--- | :--- | :--- | :--- |
+| **Jetson Orin Nano (8GB)** | Tegra Orin (Cortex-A78AE) | 1024 Ampere CUDA + 32 Tensor Cores | **40 TOPS** | **~28.5 tok/s** |
+| **Jetson Orin NX (16GB)** | Tegra Orin (Cortex-A78AE) | 1024 CUDA + 2x NVDLA 2.0 | **100 TOPS** | **~34.0 tok/s** |
+| **Jetson Xavier NX** | Tegra Xavier (Carmel) | 384 Volta CUDA + 2x NVDLA 1.0 | **21 TOPS** | **~22.0 tok/s** |
+
+---
+
+## 📚 Offline Edge Vector Search & Local RAG (`litrun embed` / `litrun run --rag`)
+
+Deploy Retrieval-Augmented Generation directly onto edge microcomputers without cloud vector databases or external network connectivity. Uses embedded SQLite vector storage with normalized multi-gram semantic projections:
+
+```bash
+# Ingest local manuals, technical documentation, or field logs:
+litrun embed --file pump_manual.txt
+
+# Or index raw text snippets directly:
+litrun embed --text "Error Code E-04: Hydraulic pressure dropped below 15 PSI. Action: Inspect secondary seal and intake valve."
+
+# Search your local edge vector index:
+litrun embed --query "What does error E-04 mean?"
+
+# Automatically augment edge reasoning prompts with nearest matching context:
+litrun run qwen2.5-0.5b --rag -p "What action should I take for error code E-04?"
+```
+
+```text
+→ Probed edge vector database: 1 matching context retrieved (score: 0.82)
+litrun: Based on the industrial manual, Error Code E-04 indicates hydraulic pressure
+has dropped below 15 PSI. You should inspect the secondary seal and verify intake valve integrity.
+```
+
+---
+
+## 🏭 Industrial MQTT Sensor Telemetry Daemon & IoT Edge Agent (`litrun mqtt`)
+
+Transform edge SBCs into autonomous industrial monitoring daemons that subscribe to sensor telemetry over MQTT, evaluate safety envelopes with local AI models in real time, and publish corrective actuation commands with zero cloud latency:
+
+```bash
+# Run the autonomous MQTT sensor agent:
+litrun mqtt --broker localhost --port 1883 --topic "factory/sensors/#" --alert-topic "factory/alerts"
+
+# Or run the live interactive telemetry demonstration:
+litrun mqtt --demo
+```
+
+```text
+⚡ litrun Industrial MQTT Edge Agent
+Broker: localhost:1883
+Subscribed Topic: factory/sensors/#
+Alert Topic: factory/alerts
+Evaluator Model: qwen2.5-0.5b (Zero cloud latency)
+
+Streaming live industrial telemetry events...
+
+                        Edge Model Telemetry Evaluation                         
+┏━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Sensor Metric        ┃ Value        ┃ AI Assessment      ┃ Autonomous Action                                          ┃
+┡━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ boiler_temp_c        │ 68.2°C       │ NOMINAL            │ NOMINAL_MONITORING (Sensor within safe operating params)   │
+│ turbine_vibration    │ 9.4mm/s      │ CRITICAL           │ EMERGENCY_SHUTDOWN (Vibration amplitude indicates failure) │
+│ bearing_temp_c       │ 84.1°C       │ CRITICAL           │ TRIGGER_COOLING_FAN (Temperature exceeded thermal limit)   │
+└──────────────────────┴──────────────┴────────────────────┴────────────────────────────────────────────────────────────┘
+
+✓ Published autonomous actions to 'factory/alerts' via MQTT.
+```
+
+---
+
 ## 🤖 ROS 2 (Robot Operating System) Integration
 
 Deploy deterministic on-device LLM reasoning and velocity commands onto ROS 2 robotics platforms (TurtleBot 4, autonomous rovers):
@@ -334,7 +418,7 @@ See the complete [ROS 2 Package Guide](integrations/ros2/README.md).
 | **Raspberry Pi 4 Model B** | BCM2711 (Cortex-A72) | ARM NEON (ASIMD) | 8.2 tok/s | Phase 1 (GA) |
 | **Raspberry Pi 3 / Zero 2 W**| BCM2837 (Cortex-A53) | ARM NEON Baseline | 14.5 tok/s (135M) | Phase 1 (GA) |
 | **Orange Pi 5 / 5 Plus** | Rockchip RK3588 | 6 TOPS NPU (RKNN) + DotProd | 24.8 tok/s | Phase 1 (GA) |
-| **NVIDIA Jetson Orin Nano** | Tegra Orin (Cortex-A78AE)| Ampere GPU + NVDLA | 28.0 tok/s | Phase 2 |
+| **NVIDIA Jetson Orin Nano** | Tegra Orin (Cortex-A78AE)| 1024 CUDA Cores + Ampere GPU | 28.5 tok/s | Phase 1 (GA) |
 | **Generic x86_64 Edge Host**| Intel Core / AMD Ryzen | AVX2 + FMA | 32.0 tok/s | Phase 1 (GA) |
 
 ---

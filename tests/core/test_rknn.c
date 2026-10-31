@@ -23,3 +23,4 @@ int main(void) {
     printf("[TEST] All C RKNN Adapter Tests Passed!\n");
     return 0;
 }
+

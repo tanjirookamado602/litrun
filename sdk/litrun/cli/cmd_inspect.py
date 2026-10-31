@@ -11,6 +11,7 @@ from rich.text import Text
 from litrun.hardware import probe_hardware
 from litrun.governor import poll_governor
 from litrun.rknn import probe_rknn
+from litrun.jetson import probe_jetson
 
 console = Console()
 
@@ -115,7 +116,14 @@ def inspect_cmd(json_output: bool):
     elif hw.has_rknn:
         vec_table.add_row("Rockchip RKNN NPU", "[bold green]DETECTED[/bold green]", "/dev/rknpu hardware node accessible")
 
-    if hw.has_nvdla:
+    jetson = probe_jetson()
+    if jetson.is_available:
+        vec_table.add_row(
+            "NVIDIA Jetson / Tegra",
+            "[bold green]DETECTED[/bold green]",
+            f"{jetson.soc} ({jetson.cuda_cores} CUDA Cores, {jetson.nvdla_engines}x NVDLA, JetPack {jetson.jetpack_version})"
+        )
+    elif hw.has_nvdla:
         vec_table.add_row("NVIDIA NVDLA", "[bold green]DETECTED[/bold green]", "Jetson deep learning accelerator accessible")
 
     console.print(vec_table)

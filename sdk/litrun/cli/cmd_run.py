@@ -38,6 +38,8 @@ console = Console()
 @click.option("--schema", "schema_arg", default=None, help="JSON Schema string or path to .json schema file")
 @click.option("--tools", "tools_mode", is_flag=True, help="Enable autonomous edge hardware tool calling (GPIO & telemetry)")
 @click.option("--npu", "npu_mode", is_flag=True, help="Offload model inference to Rockchip NPU (RK3588 / RK3566)")
+@click.option("--gpu", "--jetson", "gpu_mode", is_flag=True, help="Offload model inference to NVIDIA Jetson GPU & NVDLA")
+@click.option("--rag", "rag_mode", is_flag=True, help="Augment prompt with retrieved context from local vector store")
 @click.option("--demo", is_flag=True, help="Run in high-speed hardware simulation mode without downloading weights")
 def run_cmd(
     model_id: str,
@@ -49,6 +51,8 @@ def run_cmd(
     schema_arg: str,
     tools_mode: bool,
     npu_mode: bool,
+    gpu_mode: bool,
+    rag_mode: bool,
     demo: bool,
 ):
     """Executes any curated LLM with zero quantization guesswork."""
@@ -89,6 +93,17 @@ def run_cmd(
     if not allowed:
         console.print(f"[bold red]✗ Governor Warning:[/bold red] {gov_reason}")
 
+    # Local Offline RAG Augmentation
+    if rag_mode and prompt_text:
+        from litrun.rag import EdgeVectorStore, build_rag_augmented_prompt
+        rag_store = EdgeVectorStore()
+        contexts = rag_store.search(prompt_text, top_k=3)
+        if contexts:
+            console.print(f"[bold blue]→ RAG Retrieval:[/bold blue] Injected [bold green]{len(contexts)} knowledge chunks[/bold green] from local vector store")
+            prompt_text = build_rag_augmented_prompt(prompt_text, contexts)
+        else:
+            console.print("[dim]→ RAG Retrieval: No local document matches found in vector store, using base prompt.[/dim]")
+
     # NPU Hardware Acceleration Routing
     if npu_mode:
         from litrun.rknn import RKNNRuntime
@@ -100,6 +115,19 @@ def run_cmd(
         if prompt_text:
             out = rknn.infer(prompt_text, model_id=model_id)
             console.print(f"\n[bold green]litrun (NPU):[/bold green] {out}")
+            return
+
+    # NVIDIA Jetson GPU & NVDLA Acceleration Routing
+    if gpu_mode:
+        from litrun.jetson import JetsonRuntime
+        jetson = JetsonRuntime(allow_mock=True)
+        console.print(
+            f"[bold green]⚡ NVIDIA Jetson Active:[/bold green] "
+            f"Offloading tensors to {jetson.info.soc} ({jetson.info.cuda_cores} CUDA Cores, NVDLA: {jetson.info.has_nvdla})"
+        )
+        if prompt_text:
+            out = jetson.infer(prompt_text, model_id=model_id)
+            console.print(f"\n[bold green]litrun (GPU):[/bold green] {out}")
             return
 
     # 3. Precompiled Binary Resolution

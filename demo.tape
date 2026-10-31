@@ -2,23 +2,33 @@
 # Output: assets/demo.gif
 Output assets/demo.gif
 
-Set FontSize 16
-Set Width 960
-Set Height 580
+Set FontSize 15
+Set Width 1024
+Set Height 640
 Set Theme "Dracula"
-Set Padding 15
+Set Padding 16
 
-# 1. Inspect Hardware & Vector Extensions
+# 1. Inspect Hardware, NPU & Jetson Accelerators
 Type "litrun inspect"
 Enter
 Sleep 3s
 
-# 2. List Curated Model Registry
-Type "litrun list"
+# 2. Local Offline RAG: Ingest Industrial Manual
+Type "litrun embed --text 'Alert Code E-04: Hydraulic pressure dropped below 15 PSI. Action: Inspect secondary seal and intake valve.'"
 Enter
 Sleep 2.5s
 
-# 3. One-Command LLM Inference with Active Governor
-Type "litrun run smollm2-135m --prompt 'What is edge AI?'"
+# 3. Edge Reasoning with Augmented Context
+Type "litrun run qwen2.5-0.5b --rag -p 'What action is required for alert code E-04?'"
 Enter
-Sleep 4.5s
+Sleep 3.5s
+
+# 4. Industrial IoT MQTT Autonomous Telemetry Daemon
+Type "litrun mqtt --demo"
+Enter
+Sleep 4s
+
+# 5. Vision-Language Model Edge Inspection
+Type "litrun see --demo"
+Enter
+Sleep 3.5s
