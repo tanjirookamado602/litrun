@@ -10,14 +10,24 @@ import sys
 # Ensure sdk is in path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "sdk")))
 
-from litrun import __version__
 from litrun.packaging import build_deb_package
+
+
+def _get_version(repo_root: str) -> str:
+    if len(sys.argv) > 1:
+        return sys.argv[1]
+    pyproject = os.path.join(repo_root, "pyproject.toml")
+    if os.path.exists(pyproject):
+        with open(pyproject, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("version ="):
+                    return line.split("=")[1].strip().strip('"').strip("'")
+    return "0.7.0"
 
 
 def main():
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-
-    version = sys.argv[1] if len(sys.argv) > 1 else __version__
+    version = _get_version(repo_root)
     import platform
     m = platform.machine().lower()
     arch = "arm64" if "aarch64" in m or "arm64" in m else ("amd64" if "x86_64" in m else "armhf")
