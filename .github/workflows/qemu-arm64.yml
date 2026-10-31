@@ -13,17 +13,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up QEMU for ARM64 Emulation
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - name: Execute C Fingerprint Tests under QEMU
+      - name: Install aarch64 cross-compiler and QEMU
         run: |
-          docker run --platform linux/arm64 --rm -v $PWD:/workspace -w /workspace \
-            ubuntu:22.04 /bin/bash -c \
-            "apt-get update && apt-get install -y gcc make && \
-             make -C core clean all && \
-             make -C core test && \
-             ./core/bin/litrun-probe"
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross make qemu-user-static
 
+      - name: Cross-compile C Native Core for ARM64
+        run: |
+          CC=aarch64-linux-gnu-gcc make -C core clean all
+          CC=aarch64-linux-gnu-gcc make -C core bin/test_fingerprint bin/test_governor bin/test_rknn bin/test_jetson
+
+      - name: Execute ARM64 Native Tests under QEMU
+        run: |
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_fingerprint
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_governor
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_rknn
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/test_jetson
+          qemu-aarch64-static -L /usr/aarch64-linux-gnu ./core/bin/litrun-probe
