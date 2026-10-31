@@ -58,6 +58,11 @@ from litrun.lora import (
     LoRALayer,
     LoRAAdapter,
 )
+from litrun.packaging import (
+    build_deb_package,
+    create_control_archive,
+    create_data_archive,
+)
 
 __all__ = [
     "Model",
@@ -106,6 +111,9 @@ __all__ = [
     "LoRAConfig",
     "LoRALayer",
     "LoRAAdapter",
+    "build_deb_package",
+    "create_control_archive",
+    "create_data_archive",
     "__version__",
 ]
 

@@ -5,7 +5,7 @@ Unit tests for litrun pure-Python Debian packaging
 import os
 import tarfile
 import tempfile
-from scripts.build_deb import (
+from litrun.packaging import (
     make_ar_header,
     create_control_archive,
     create_data_archive,
