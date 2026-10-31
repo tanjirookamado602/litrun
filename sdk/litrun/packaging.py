@@ -201,3 +201,4 @@ def build_deb_package(output_path: str, version: str, arch: str, repo_root: str)
         deb.write(data_gz)
         if len(data_gz) % 2 != 0:
             deb.write(b"\n")
+

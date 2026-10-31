@@ -21,7 +21,7 @@ def test_ar_header_format():
 
 
 def test_control_archive_generation():
-    ctrl_gz = create_control_archive(version="0.6.0", arch="arm64")
+    ctrl_gz = create_control_archive(version="0.7.0", arch="arm64")
     assert len(ctrl_gz) > 0
 
     import io
@@ -40,7 +40,7 @@ def test_build_deb_package_file():
     try:
         build_deb_package(
             output_path=deb_path,
-            version="0.6.0",
+            version="0.7.0",
             arch="arm64",
             repo_root=repo_root,
         )

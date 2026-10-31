@@ -262,3 +262,4 @@ class LoRAAdapter:
             "trainable_parameters": total_params,
             "memory_footprint_kb": footprint_kb,
         }
+

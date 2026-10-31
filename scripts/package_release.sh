@@ -25,6 +25,16 @@ if command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
     cp dist/binaries/*.tar.gz "$DIST_DIR/" 2>/dev/null || true
 fi
 
+echo "==> Building Debian (.deb) packages..."
+python3 scripts/build_deb.py "${VERSION}" amd64
+if [ -f "dist/litrun_${VERSION}_amd64.deb" ]; then
+    cp "dist/litrun_${VERSION}_amd64.deb" "$DIST_DIR/"
+fi
+python3 scripts/build_deb.py "${VERSION}" arm64
+if [ -f "dist/litrun_${VERSION}_arm64.deb" ]; then
+    cp "dist/litrun_${VERSION}_arm64.deb" "$DIST_DIR/"
+fi
+
 echo "==> Calculating SHA-256 checksums..."
 cd "$DIST_DIR"
 sha256sum * > SHA256SUMS.txt 2>/dev/null || true

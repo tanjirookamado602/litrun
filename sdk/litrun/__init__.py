@@ -2,7 +2,7 @@
 litrun: Universal Lightweight Embedded Linux AI Runtime
 """
 
-__version__ = "0.6.0"
+__version__ = "0.7.0"
 
 from litrun.hardware import HardwareProfile, probe_hardware
 from litrun.governor import GovernorStatus, poll_governor, check_ram_envelope
