@@ -5,6 +5,7 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build-and-test-c:
@@ -40,7 +41,7 @@ jobs:
 
       - name: Build C Core Shared Library
         run: |
-          make -C core lib
+          make all
 
       - name: Install Package & Dependencies
         run: |
@@ -56,4 +57,7 @@ jobs:
           litrun --help
           litrun inspect
           litrun list
+          litrun benchmark --help
+          litrun swarm status
+          litrun lora --help
 

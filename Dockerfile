@@ -36,7 +36,7 @@ LABEL org.opencontainers.image.title="litrun" \
 ENV LANG=C.UTF-8 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    LD_LIBRARY_PATH=/usr/local/lib/litrun:${LD_LIBRARY_PATH} \
+    LD_LIBRARY_PATH=/usr/local/lib/litrun:/usr/local/lib:/usr/lib \
     LITRUN_CACHE_DIR=/home/litrun/.cache/litrun
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
