@@ -171,6 +171,7 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
             self._send_json(200, {
                 "summary": summary,
                 "nodes": [n.to_dict() for n in mgr.nodes.values()],
+                "rollouts": [r.to_dict() for r in mgr.rollouts.values()],
             })
             return
 
@@ -328,6 +329,167 @@ class LitrunOpenAIHandler(BaseHTTPRequestHandler):
             profile = FleetNodeProfile.from_dict(payload)
             mgr.enroll_node(profile)
             self._send_json(200, {"status": "enrolled", "node_id": profile.node_id})
+
+        elif self.path == "/v1/fleet/deploy":
+            content_len = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_len) if content_len > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8")) if body else {}
+            except Exception as e:
+                self._send_json(400, {"error": f"Invalid JSON payload: {e}"})
+                return
+
+            from litrun.fleet import FleetManager, OTAPackage
+            mgr = FleetManager()
+            model_id = payload.get("model_id", "smollm2-135m")
+            version = payload.get("version", "1.2.0")
+            quant = payload.get("quant", "Q4_0")
+            strategy = payload.get("strategy", "canary")
+            canary_ratio = float(payload.get("canary_ratio", 0.25))
+            pkg_id = f"pkg-{uuid.uuid4().hex[:8]}"
+
+            pkg = OTAPackage(
+                package_id=pkg_id,
+                target_model=model_id,
+                target_quant=quant,
+                target_version=version,
+                sha256_checksum=uuid.uuid4().hex,
+                rollout_strategy=strategy,
+                canary_ratio=canary_ratio,
+                rollback_on_throttle=True,
+                created_at=time.time(),
+            )
+            pkg.signature = pkg.compute_signature(mgr.secret)
+            rollout = mgr.create_ota_deployment(pkg)
+            self._send_json(200, {
+                "status": "success",
+                "package": pkg.to_dict(),
+                "rollout": rollout.to_dict(),
+            })
+
+        elif self.path == "/v1/fleet/evaluate":
+            content_len = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_len) if content_len > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8")) if body else {}
+            except Exception as e:
+                self._send_json(400, {"error": f"Invalid JSON payload: {e}"})
+                return
+
+            from litrun.fleet import FleetManager
+            mgr = FleetManager()
+            pkg_id = payload.get("package_id")
+            if not pkg_id and mgr.rollouts:
+                pkg_id = list(mgr.rollouts.keys())[-1]
+
+            if not pkg_id:
+                self._send_json(400, {"error": "No package_id specified or available"})
+                return
+
+            promoted, reason = mgr.evaluate_canary(pkg_id)
+            self._send_json(200, {
+                "package_id": pkg_id,
+                "promoted": promoted,
+                "reason": reason,
+                "phase": mgr.rollouts.get(pkg_id).phase if pkg_id in mgr.rollouts else "unknown",
+            })
+
+        elif self.path == "/v1/fleet/rollback":
+            content_len = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_len) if content_len > 0 else b"{}"
+            try:
+                payload = json.loads(body.decode("utf-8")) if body else {}
+            except Exception as e:
+                self._send_json(400, {"error": f"Invalid JSON payload: {e}"})
+                return
+
+            from litrun.fleet import FleetManager
+            mgr = FleetManager()
+            node_id = payload.get("node_id")
+            reverted = mgr.trigger_rollback(node_id)
+            self._send_json(200, {
+                "status": "rolled_back",
+                "reverted_nodes": reverted,
+                "count": len(reverted),
+            })
+
+        elif self.path == "/v1/fleet/seed_demo":
+            from litrun.fleet import FleetManager, FleetNodeProfile
+            mgr = FleetManager()
+            demo_nodes = [
+                FleetNodeProfile(
+                    node_id="rpi5-gateway-01",
+                    hostname="rpi5-gateway",
+                    board_name="Raspberry Pi 5",
+                    soc="BCM2712 (Cortex-A76)",
+                    ram_total_mb=8192,
+                    ram_avail_mb=5840,
+                    cpu_temp_c=46.2,
+                    thermal_state=0,
+                    current_model="smollm2-135m",
+                    current_model_version="1.2.0",
+                    installed_models=["smollm2-135m", "qwen2.5-0.5b"],
+                    status="healthy",
+                    last_heartbeat=time.time(),
+                    firmware_version="0.9.0",
+                ),
+                FleetNodeProfile(
+                    node_id="opi5-npu-worker-02",
+                    hostname="opi5-npu-worker",
+                    board_name="Orange Pi 5 Plus",
+                    soc="RK3588 (6.0 TOPS NPU)",
+                    ram_total_mb=16384,
+                    ram_avail_mb=12950,
+                    cpu_temp_c=48.8,
+                    thermal_state=0,
+                    current_model="smollm2-135m",
+                    current_model_version="1.2.0",
+                    installed_models=["smollm2-135m", "smolvlm-256m"],
+                    status="healthy",
+                    last_heartbeat=time.time(),
+                    firmware_version="0.9.0",
+                ),
+                FleetNodeProfile(
+                    node_id="jetson-orin-vision-03",
+                    hostname="jetson-orin-edge",
+                    board_name="NVIDIA Jetson Orin Nano",
+                    soc="Tegra Orin (Ampere GPU)",
+                    ram_total_mb=8192,
+                    ram_avail_mb=5120,
+                    cpu_temp_c=52.1,
+                    thermal_state=0,
+                    current_model="qwen2.5-0.5b",
+                    current_model_version="1.0.0",
+                    installed_models=["qwen2.5-0.5b", "moondream2"],
+                    status="healthy",
+                    last_heartbeat=time.time(),
+                    firmware_version="0.9.0",
+                ),
+                FleetNodeProfile(
+                    node_id="milkv-pioneer-riscv-04",
+                    hostname="milkv-rvv-server",
+                    board_name="Milk-V Pioneer",
+                    soc="SG2042 64-Core (RVV Vector 1.0)",
+                    ram_total_mb=32768,
+                    ram_avail_mb=28400,
+                    cpu_temp_c=49.4,
+                    thermal_state=0,
+                    current_model="smollm2-360m",
+                    current_model_version="1.0.0",
+                    installed_models=["smollm2-135m", "smollm2-360m"],
+                    status="healthy",
+                    last_heartbeat=time.time(),
+                    firmware_version="0.9.0",
+                ),
+            ]
+            for n in demo_nodes:
+                mgr.enroll_node(n)
+            summary = mgr.fleet_telemetry_summary()
+            self._send_json(200, {
+                "status": "seeded",
+                "nodes": [n.to_dict() for n in mgr.nodes.values()],
+                "summary": summary,
+            })
 
         else:
             self._send_json(404, {"error": {"message": f"Endpoint {self.path} not found"}})

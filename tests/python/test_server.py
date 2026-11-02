@@ -201,6 +201,73 @@ def test_rest_server_endpoints():
             assert data["status"] == "enrolled"
             assert data["node_id"] == "test-web-node-01"
 
+        # 16. Test POST /v1/fleet/seed_demo
+        req_seed = urllib.request.Request(
+            f"{base_url}/v1/fleet/seed_demo",
+            data=b"{}",
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_seed) as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert data["status"] == "seeded"
+            assert len(data["nodes"]) >= 4
+
+        # 17. Test GET /v1/fleet/status (with rollouts and seeded cluster)
+        with urllib.request.urlopen(f"{base_url}/v1/fleet/status") as resp:
+            assert resp.status == 200
+            data = json.loads(resp.read().decode("utf-8"))
+            assert "summary" in data
+            assert "nodes" in data
+            assert "rollouts" in data
+            assert len(data["nodes"]) >= 4
+
+        # 18. Test POST /v1/fleet/deploy
+        deploy_post = json.dumps({
+            "model_id": "smollm2-360m",
+            "version": "1.3.0",
+            "quant": "Q4_0",
+            "strategy": "canary",
+            "canary_ratio": 0.25,
+        }).encode("utf-8")
+        req_deploy = urllib.request.Request(
+            f"{base_url}/v1/fleet/deploy",
+            data=deploy_post,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_deploy) as resp:
+            assert resp.status == 200
+            deploy_res = json.loads(resp.read().decode("utf-8"))
+            assert deploy_res["status"] == "success"
+            pkg_id = deploy_res["package"]["package_id"]
+            assert "canary_nodes" in deploy_res["rollout"]
+
+        # 19. Test POST /v1/fleet/evaluate
+        eval_post = json.dumps({"package_id": pkg_id}).encode("utf-8")
+        req_eval = urllib.request.Request(
+            f"{base_url}/v1/fleet/evaluate",
+            data=eval_post,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_eval) as resp:
+            assert resp.status == 200
+            eval_res = json.loads(resp.read().decode("utf-8"))
+            assert eval_res["package_id"] == pkg_id
+            assert "promoted" in eval_res
+
+        # 20. Test POST /v1/fleet/rollback
+        rb_post = json.dumps({"node_id": "rpi5-gateway-01"}).encode("utf-8")
+        req_rb = urllib.request.Request(
+            f"{base_url}/v1/fleet/rollback",
+            data=rb_post,
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req_rb) as resp:
+            assert resp.status == 200
+            rb_res = json.loads(resp.read().decode("utf-8"))
+            assert rb_res["status"] == "rolled_back"
+            assert "reverted_nodes" in rb_res
+
     finally:
         t = threading.Thread(target=server.shutdown, daemon=True)
         t.start()

@@ -521,6 +521,191 @@ def get_ui_html(version: str = "0.9.0") -> str:
       overflow-x: auto;
       position: relative;
     }}
+    /* Fleet & Cluster Tab */
+    .fleet-summary-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.85rem;
+      margin-bottom: 1.25rem;
+    }}
+    .fleet-kpi-card {{
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }}
+    .fleet-kpi-title {{
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }}
+    .fleet-kpi-val {{
+      font-size: 1.45rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-main);
+    }}
+    .fleet-kpi-sub {{
+      font-size: 0.75rem;
+      color: var(--text-dim);
+    }}
+    .fleet-controls-bar {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }}
+    .fleet-nodes-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }}
+    .node-card {{
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }}
+    .node-card:hover {{
+      border-color: #374151;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    }}
+    .node-header {{
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }}
+    .node-title-group {{
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }}
+    .node-hostname {{
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }}
+    .node-id-sub {{
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }}
+    .node-board-pill {{
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      background: #1f2937;
+      color: var(--accent-cyan);
+      border: 1px solid #374151;
+      white-space: nowrap;
+    }}
+    .node-badges-row {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }}
+    .node-badge {{
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }}
+    .badge-soc {{ background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }}
+    .badge-accel {{ background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }}
+    .badge-model {{ background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }}
+    .badge-healthy {{ background: rgba(16, 185, 129, 0.2); color: #34d399; }}
+    .badge-throttled {{ background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }}
+    .badge-offline {{ background: rgba(107, 114, 128, 0.2); color: #9ca3af; }}
+    .node-metrics-box {{
+      background: #0d131f;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }}
+    .node-metric-line {{
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }}
+    .node-metric-val {{
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--text-main);
+    }}
+    .node-progress-bg {{
+      height: 5px;
+      background: #1f2937;
+      border-radius: 3px;
+      overflow: hidden;
+    }}
+    .node-progress-fill {{
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.3s;
+    }}
+    .node-actions-row {{
+      display: flex;
+      gap: 0.5rem;
+      margin-top: auto;
+    }}
+    .btn-sm {{
+      padding: 0.35rem 0.65rem;
+      font-size: 0.75rem;
+      border-radius: 4px;
+    }}
+    .ota-deploy-card {{
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }}
+    .ota-deploy-card.active {{
+      display: block;
+    }}
+    .ota-form-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }}
+    .rollout-banner {{
+      background: #0d131f;
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }}
+
     footer {{
       margin-top: auto;
       border-top: 1px solid var(--card-border);
@@ -557,6 +742,7 @@ def get_ui_html(version: str = "0.9.0") -> str:
     <nav class="nav-tabs">
       <button class="nav-btn active" onclick="switchTab('chat')">💬 Playground</button>
       <button class="nav-btn" onclick="switchTab('gpio')">🔌 GPIO Matrix</button>
+      <button class="nav-btn" onclick="switchTab('fleet')">🌐 Fleet Cluster</button>
       <button class="nav-btn" onclick="switchTab('telemetry')">📊 Telemetry</button>
       <button class="nav-btn" onclick="switchTab('bench')">⚡ Benchmark & API</button>
     </nav>
@@ -718,7 +904,168 @@ You can prompt me with text queries, ask me to inspect sensors or control GPIO p
       </div>
     </div>
 
-    <!-- Tab 3: Detailed Telemetry -->
+    <!-- Tab 3: Fleet Cluster -->
+    <div id="tab-fleet" class="tab-content">
+      <!-- Top Cluster KPI Summary -->
+      <section class="fleet-summary-grid">
+        <div class="fleet-kpi-card">
+          <span class="fleet-kpi-title">Cluster Nodes</span>
+          <span class="fleet-kpi-val" id="fleet-total-nodes">0</span>
+          <span class="fleet-kpi-sub" id="fleet-nodes-sub">--</span>
+        </div>
+        <div class="fleet-kpi-card">
+          <span class="fleet-kpi-title">Online & Healthy</span>
+          <span class="fleet-kpi-val" id="fleet-healthy-nodes" style="color: var(--accent);">0</span>
+          <span class="fleet-kpi-sub" id="fleet-health-sub">Active heartbeats</span>
+        </div>
+        <div class="fleet-kpi-card">
+          <span class="fleet-kpi-title">Cluster Memory Headroom</span>
+          <span class="fleet-kpi-val" id="fleet-ram-kpi" style="font-size: 1.25rem;">-- MB</span>
+          <span class="fleet-kpi-sub" id="fleet-ram-sub">cgroup enforced</span>
+        </div>
+        <div class="fleet-kpi-card">
+          <span class="fleet-kpi-title">Avg CPU Temperature</span>
+          <span class="fleet-kpi-val" id="fleet-temp-kpi" style="color: var(--accent-cyan);">--°C</span>
+          <span class="fleet-kpi-sub" id="fleet-temp-sub">Nominal state</span>
+        </div>
+        <div class="fleet-kpi-card">
+          <span class="fleet-kpi-title">Active Rollouts</span>
+          <span class="fleet-kpi-val" id="fleet-rollout-kpi" style="color: #c084fc;">0</span>
+          <span class="fleet-kpi-sub" id="fleet-rollout-sub">Canary stages</span>
+        </div>
+      </section>
+
+      <!-- Action Controls Bar -->
+      <div class="fleet-controls-bar">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button class="btn btn-primary btn-sm" onclick="toggleOTAPanel()">🚀 New OTA Deployment</button>
+          <button class="btn btn-secondary btn-sm" onclick="seedDemoCluster()">⚡ Seed 4-Node Cluster Demo</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleEnrollPanel()">➕ Enroll Node</button>
+          <button class="btn btn-secondary btn-sm" onclick="rollbackFleet(null)" style="color: var(--warning); border-color: rgba(245, 158, 11, 0.4);">⚠️ Emergency Rollback</button>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-secondary btn-sm" onclick="refreshFleet()">🔄 Refresh</button>
+          <span id="fleet-last-sync" style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">Syncing...</span>
+        </div>
+      </div>
+
+      <!-- Active Rollout Alert/Banner -->
+      <div id="fleet-active-rollout-box" style="display: none;" class="rollout-banner">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span class="status-dot"></span>
+            <strong id="rollout-pkg-title" style="font-size: 0.95rem; color: var(--text-main);">OTA Canary Deployment Active</strong>
+            <span id="rollout-phase-badge" class="node-badge badge-accel">canary_active</span>
+          </div>
+          <p id="rollout-details" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">Target: smollm2-135m:v1.2.0 • Canary: 1 node (25%)</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-primary btn-sm" onclick="evaluateCanaryLatest()">✓ Promote Canary (100%)</button>
+          <button class="btn btn-secondary btn-sm" onclick="rollbackFleet(null)" style="color: var(--danger);">Revert Rollout</button>
+        </div>
+      </div>
+
+      <!-- OTA Deployment Form Panel -->
+      <div id="ota-deploy-panel" class="ota-deploy-card">
+        <h3 style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+          🚀 Issue Cryptographically Signed OTA Canary Deployment
+          <span class="version-tag" style="color: var(--accent);">HMAC-SHA256</span>
+        </h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Packages are cryptographically signed with the cluster master secret. The active C governor on each device verifies SHA-256 integrity and memory headroom before staging.
+        </p>
+        <div class="ota-form-grid">
+          <div class="form-group">
+            <label>Target Model</label>
+            <select id="ota-target-model" class="select-field">
+              <option value="smollm2-135m">smollm2-135m (101MB — Ultra-fast)</option>
+              <option value="smollm2-360m">smollm2-360m (258MB — Edge Reasoning)</option>
+              <option value="qwen2.5-0.5b">qwen2.5-0.5b (468MB — Standard)</option>
+              <option value="smolvlm-256m">smolvlm-256m (Vision VLM)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Target Version Tag</label>
+            <input type="text" id="ota-target-version" class="input-field" value="1.3.0">
+          </div>
+          <div class="form-group">
+            <label>Quantization</label>
+            <select id="ota-target-quant" class="select-field">
+              <option value="Q4_0">Q4_0 (Minimal RAM)</option>
+              <option value="Q4_K_M" selected>Q4_K_M (Balanced Accuracy)</option>
+              <option value="Q8_0">Q8_0 (Maximum Precision)</option>
+              <option value="INT8">INT8 (Rockchip NPU Offload)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Deployment Strategy</label>
+            <select id="ota-strategy" class="select-field">
+              <option value="canary">Staged Canary Rollout</option>
+              <option value="immediate">Immediate Full Fleet Deploy</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Canary Ratio</label>
+            <select id="ota-canary-ratio" class="select-field">
+              <option value="0.25">25% (1 of 4 nodes)</option>
+              <option value="0.50">50% (2 of 4 nodes)</option>
+              <option value="1.00">100% (Instant all nodes)</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-primary" onclick="submitOTADeployment()">⚡ Sign & Launch OTA Rollout</button>
+          <button class="btn btn-secondary" onclick="toggleOTAPanel()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Enroll Node Form Panel -->
+      <div id="enroll-node-panel" class="ota-deploy-card">
+        <h3 style="margin-bottom: 0.5rem;">➕ Enroll Remote Single-Board Computer</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Add a new Raspberry Pi, Orange Pi, Jetson, or RISC-V device to this cluster.
+        </p>
+        <div class="ota-form-grid">
+          <div class="form-group">
+            <label>Node ID</label>
+            <input type="text" id="enroll-node-id" class="input-field" placeholder="node-rpi5-gateway-02">
+          </div>
+          <div class="form-group">
+            <label>Hostname / IP</label>
+            <input type="text" id="enroll-hostname" class="input-field" placeholder="192.168.1.120">
+          </div>
+          <div class="form-group">
+            <label>Board Type</label>
+            <select id="enroll-board" class="select-field">
+              <option value="Raspberry Pi 5">Raspberry Pi 5 (BCM2712)</option>
+              <option value="Orange Pi 5 Plus">Orange Pi 5 Plus (RK3588 NPU)</option>
+              <option value="NVIDIA Jetson Orin Nano">NVIDIA Jetson Orin Nano (CUDA)</option>
+              <option value="Milk-V Pioneer">Milk-V Pioneer (SG2042 RISC-V RVV)</option>
+              <option value="Generic ARM64 Gateway">Generic ARM64 Gateway</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Physical RAM (MB)</label>
+            <input type="number" id="enroll-ram" class="input-field" value="8192">
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button class="btn btn-primary" onclick="submitEnrollNode()">Enroll Device</button>
+          <button class="btn btn-secondary" onclick="toggleEnrollPanel()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Node Cards Visual Grid -->
+      <h3 style="font-size: 1.05rem; margin-bottom: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
+        🖥️ Enrolled Edge Nodes & Hardware Topology
+        <span class="version-tag" id="fleet-node-count-tag">0 Nodes</span>
+      </h3>
+      <div class="fleet-nodes-grid" id="fleet-nodes-container">
+        <!-- Dynamically rendered by refreshFleet() -->
+      </div>
+    </div>
+
+    <!-- Tab 4: Detailed Telemetry -->
     <div id="tab-telemetry" class="tab-content">
       <div class="panel-box">
         <h3>📊 Hardware & Governor Diagnostics</h3>
@@ -776,6 +1123,7 @@ curl http://localhost:8080/v1/chat/completions \\
     let currentTab = 'chat';
     let attachedImageBase64 = null;
     let gpioPinsState = {{}};
+    let fleetPollTimer = null;
 
     function switchTab(tabId) {{
       currentTab = tabId;
@@ -791,11 +1139,288 @@ curl http://localhost:8080/v1/chat/completions \\
         buttons[1].classList.add('active');
         refreshGPIO();
       }}
-      if (tabId === 'telemetry') {{
+      if (tabId === 'fleet') {{
         buttons[2].classList.add('active');
+        refreshFleet();
+        if (!fleetPollTimer) {{
+          fleetPollTimer = setInterval(refreshFleet, 4000);
+        }}
+      }} else {{
+        if (fleetPollTimer) {{
+          clearInterval(fleetPollTimer);
+          fleetPollTimer = null;
+        }}
+      }}
+      if (tabId === 'telemetry') {{
+        buttons[3].classList.add('active');
         updateTelemetry();
       }}
-      if (tabId === 'bench') buttons[3].classList.add('active');
+      if (tabId === 'bench') buttons[4].classList.add('active');
+    }}
+
+    // Fleet & Cluster Dashboard Logic
+    function toggleOTAPanel() {{
+      const p = document.getElementById('ota-deploy-panel');
+      if (p) p.classList.toggle('active');
+    }}
+
+    function toggleEnrollPanel() {{
+      const p = document.getElementById('enroll-node-panel');
+      if (p) p.classList.toggle('active');
+    }}
+
+    async function seedDemoCluster() {{
+      try {{
+        const res = await fetch('/v1/fleet/seed_demo', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: '{{}}'
+        }});
+        if (res.ok) {{
+          await refreshFleet();
+        }}
+      }} catch (e) {{
+        console.error("Failed to seed demo cluster:", e);
+      }}
+    }}
+
+    async function submitOTADeployment() {{
+      const model_id = document.getElementById('ota-target-model').value;
+      const version = document.getElementById('ota-target-version').value;
+      const quant = document.getElementById('ota-target-quant').value;
+      const strategy = document.getElementById('ota-strategy').value;
+      const canary_ratio = parseFloat(document.getElementById('ota-canary-ratio').value);
+
+      try {{
+        const res = await fetch('/v1/fleet/deploy', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ model_id, version, quant, strategy, canary_ratio }})
+        }});
+        if (res.ok) {{
+          document.getElementById('ota-deploy-panel').classList.remove('active');
+          await refreshFleet();
+        }}
+      }} catch (e) {{
+        console.error("Failed to submit OTA deployment:", e);
+      }}
+    }}
+
+    async function evaluateCanaryLatest() {{
+      try {{
+        const res = await fetch('/v1/fleet/evaluate', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{}})
+        }});
+        if (res.ok) {{
+          const data = await res.json();
+          alert(data.promoted ? "✓ Canary promoted across fleet: " + data.reason : "Notice: " + data.reason);
+          await refreshFleet();
+        }}
+      }} catch (e) {{
+        console.error("Failed to evaluate canary:", e);
+      }}
+    }}
+
+    async function rollbackFleet(nodeId) {{
+      if (!confirm(nodeId ? "Rollback node " + nodeId + " to safe snapshot?" : "Trigger emergency rollback across entire fleet?")) return;
+      try {{
+        const res = await fetch('/v1/fleet/rollback', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ node_id: nodeId }})
+        }});
+        if (res.ok) {{
+          const data = await res.json();
+          alert("✓ Rollback executed on " + data.count + " node(s): " + (data.reverted_nodes || []).join(", "));
+          await refreshFleet();
+        }}
+      }} catch (e) {{
+        console.error("Failed to rollback:", e);
+      }}
+    }}
+
+    async function submitEnrollNode() {{
+      const node_id = document.getElementById('enroll-node-id').value || ("node-" + Math.random().toString(16).substring(2, 8));
+      const hostname = document.getElementById('enroll-hostname').value || "edge-sbc";
+      const board_name = document.getElementById('enroll-board').value;
+      const ram_total_mb = parseInt(document.getElementById('enroll-ram').value, 10) || 8192;
+
+      let soc = "ARM64";
+      if (board_name.includes("Pi 5")) soc = "BCM2712";
+      else if (board_name.includes("Orange")) soc = "RK3588";
+      else if (board_name.includes("Jetson")) soc = "Tegra-Orin";
+      else if (board_name.includes("Milk-V")) soc = "SG2042";
+
+      const payload = {{
+        node_id: node_id,
+        hostname: hostname,
+        board_name: board_name,
+        soc: soc,
+        ram_total_mb: ram_total_mb,
+        ram_avail_mb: Math.round(ram_total_mb * 0.75),
+        cpu_temp_c: 45.0,
+        thermal_state: 0,
+        current_model: "smollm2-135m",
+        current_model_version: "1.0.0",
+        installed_models: ["smollm2-135m"],
+        status: "healthy",
+        last_heartbeat: Date.now() / 1000,
+        firmware_version: "{version}"
+      }};
+
+      try {{
+        const res = await fetch('/v1/fleet/enroll', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify(payload)
+        }});
+        if (res.ok) {{
+          document.getElementById('enroll-node-panel').classList.remove('active');
+          await refreshFleet();
+        }}
+      }} catch (e) {{
+        console.error("Failed to enroll node:", e);
+      }}
+    }}
+
+    async function refreshFleet() {{
+      try {{
+        const res = await fetch('/v1/fleet/status');
+        if (!res.ok) return;
+        const data = await res.json();
+        const summary = data.summary || {{}};
+        const nodes = data.nodes || [];
+        const rollouts = data.rollouts || [];
+
+        const totalEl = document.getElementById('fleet-total-nodes');
+        if (totalEl) totalEl.innerText = nodes.length;
+
+        const subEl = document.getElementById('fleet-nodes-sub');
+        if (subEl) subEl.innerText = nodes.length === 1 ? "1 active device" : `${{nodes.length}} registered devices`;
+
+        const onlineCount = nodes.filter(n => {{
+          const elapsed = (Date.now() / 1000) - (n.last_heartbeat || 0);
+          return elapsed < 300;
+        }}).length;
+
+        const healthyEl = document.getElementById('fleet-healthy-nodes');
+        if (healthyEl) healthyEl.innerText = `${{onlineCount}} / ${{nodes.length}}`;
+
+        const healthSub = document.getElementById('fleet-health-sub');
+        if (healthSub) healthSub.innerText = summary.throttled_nodes > 0 ? `⚠️ ${{summary.throttled_nodes}} throttled` : "100% nominal thermal state";
+
+        const totalRamGb = ((summary.total_ram_mb || 0) / 1024).toFixed(1);
+        const availRamGb = ((summary.available_ram_mb || 0) / 1024).toFixed(1);
+        const ramKpi = document.getElementById('fleet-ram-kpi');
+        if (ramKpi) ramKpi.innerText = `${{availRamGb}} / ${{totalRamGb}} GB`;
+
+        const avgTemp = summary.average_cpu_temp_c ? summary.average_cpu_temp_c.toFixed(1) : "--";
+        const tempKpi = document.getElementById('fleet-temp-kpi');
+        if (tempKpi) tempKpi.innerText = `${{avgTemp}}°C`;
+
+        const rolloutKpi = document.getElementById('fleet-rollout-kpi');
+        if (rolloutKpi) rolloutKpi.innerText = rollouts.length;
+
+        const tagEl = document.getElementById('fleet-node-count-tag');
+        if (tagEl) tagEl.innerText = `${{nodes.length}} Nodes in Cluster`;
+
+        const syncEl = document.getElementById('fleet-last-sync');
+        if (syncEl) syncEl.innerText = "Updated " + new Date().toLocaleTimeString();
+
+        // Active rollout banner
+        const activeRollout = rollouts.find(r => r.phase === 'canary_active' || r.phase === 'canary_evaluating');
+        const rolloutBox = document.getElementById('fleet-active-rollout-box');
+        if (rolloutBox) {{
+          if (activeRollout) {{
+            rolloutBox.style.display = 'flex';
+            document.getElementById('rollout-pkg-title').innerText = `OTA Canary Rollout (${{activeRollout.package_id}})`;
+            document.getElementById('rollout-phase-badge').innerText = activeRollout.phase;
+            document.getElementById('rollout-details').innerText = `Canary nodes: ${{ (activeRollout.canary_nodes || []).join(", ") || "None" }} • Deployed: ${{ (activeRollout.deployed_nodes || []).length }}/${{nodes.length}}`;
+          }} else {{
+            rolloutBox.style.display = 'none';
+          }}
+        }}
+
+        // Render nodes
+        const container = document.getElementById('fleet-nodes-container');
+        if (!container) return;
+
+        if (nodes.length === 0) {{
+          container.innerHTML = `<div style="grid-column: 1/-1; background:#0d131f; border:1px dashed var(--card-border); border-radius:8px; padding:2rem; text-align:center; color:var(--text-muted);">
+            <div style="font-size:1.5rem; margin-bottom:0.5rem;">🌐 No Edge Nodes Enrolled</div>
+            <p style="font-size:0.85rem; margin-bottom:1rem;">Click 'Seed 4-Node Cluster Demo' to populate a realistic Raspberry Pi, Orange Pi NPU, Jetson, and RISC-V cluster topology.</p>
+            <button class="btn btn-primary btn-sm" onclick="seedDemoCluster()">⚡ Seed 4-Node Cluster Demo</button>
+          </div>`;
+          return;
+        }}
+
+        container.innerHTML = nodes.map(n => {{
+          const elapsed = (Date.now() / 1000) - (n.last_heartbeat || 0);
+          const isOnline = elapsed < 300;
+          const statusDot = isOnline ? '<span class="status-dot"></span>' : '<span style="width:9px; height:9px; background:#6b7280; border-radius:50%; display:inline-block;"></span>';
+
+          let accelBadge = 'NEON';
+          if ((n.soc || '').includes('RK3588') || (n.board_name || '').includes('Orange')) accelBadge = '6.0 TOPS NPU';
+          else if ((n.soc || '').includes('BCM2712') || (n.board_name || '').includes('Pi 5')) accelBadge = 'DotProd ASIMDDP';
+          else if ((n.soc || '').includes('Orin') || (n.board_name || '').includes('Jetson')) accelBadge = 'CUDA Ampere';
+          else if ((n.soc || '').includes('SG2042') || (n.board_name || '').includes('Milk-V')) accelBadge = 'RISC-V RVV';
+
+          const usedRam = Math.max(0, (n.ram_total_mb || 4096) - (n.ram_avail_mb || 2048));
+          const ramPct = Math.min(100, Math.round((usedRam / (n.ram_total_mb || 4096)) * 100));
+          const ramColor = ramPct > 85 ? 'var(--danger)' : (ramPct > 65 ? 'var(--warning)' : 'var(--accent)');
+
+          const temp = (n.cpu_temp_c || 45.0).toFixed(1);
+          const tempColor = n.thermal_state > 0 || parseFloat(temp) > 75 ? 'var(--danger)' : (parseFloat(temp) > 65 ? 'var(--warning)' : 'var(--text-main)');
+
+          let healthBadge = '<span class="node-badge badge-healthy">✓ HEALTHY</span>';
+          if (n.thermal_state > 0) healthBadge = '<span class="node-badge badge-throttled">⚠️ THROTTLED</span>';
+          if (!isOnline) healthBadge = '<span class="node-badge badge-offline">OFFLINE</span>';
+
+          return `<div class="node-card">
+            <div class="node-header">
+              <div class="node-title-group">
+                <div class="node-hostname">${{statusDot}} ${{n.hostname || n.node_id}}</div>
+                <div class="node-id-sub">ID: ${{n.node_id}}</div>
+              </div>
+              <span class="node-board-pill">${{n.board_name || 'Edge SBC'}}</span>
+            </div>
+
+            <div class="node-badges-row">
+              <span class="node-badge badge-soc">${{n.soc || 'ARM64'}}</span>
+              <span class="node-badge badge-accel">${{accelBadge}}</span>
+              <span class="node-badge badge-model"><code>${{n.current_model || 'qwen2.5-0.5b'}}</code>:${{n.current_model_version || 'v1.0'}}</span>
+              ${{healthBadge}}
+            </div>
+
+            <div class="node-metrics-box">
+              <div class="node-metric-line">
+                <span>cgroup Memory Headroom</span>
+                <span class="node-metric-val">${{usedRam}} / ${{n.ram_total_mb}} MB (${{ramPct}}%)</span>
+              </div>
+              <div class="node-progress-bg">
+                <div class="node-progress-fill" style="width: ${{ramPct}}%; background: ${{ramColor}};"></div>
+              </div>
+              <div class="node-metric-line" style="margin-top: 0.2rem;">
+                <span>CPU Temperature</span>
+                <span class="node-metric-val" style="color: ${{tempColor}};">${{temp}}°C</span>
+              </div>
+              <div class="node-metric-line">
+                <span>Heartbeat</span>
+                <span class="node-metric-val">${{isOnline ? 'Active (online)' : Math.round(elapsed / 60) + 'm ago'}}</span>
+              </div>
+            </div>
+
+            <div class="node-actions-row">
+              <button class="btn btn-secondary btn-sm" style="flex:1;" onclick="toggleOTAPanel()">Deploy Model</button>
+              <button class="btn btn-secondary btn-sm" onclick="rollbackFleet('${{n.node_id}}')" style="color:var(--warning); padding:0.35rem 0.5rem;" title="Rollback this node">Revert</button>
+            </div>
+          </div>`;
+        }}).join("");
+      }} catch (e) {{
+        console.error("Failed to refresh fleet status:", e);
+      }}
     }}
 
     // Real-time Telemetry Poller
