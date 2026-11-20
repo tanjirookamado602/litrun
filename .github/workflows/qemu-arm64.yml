@@ -10,7 +10,7 @@ on:
 jobs:
   test-arm64-qemu:
     name: ARM64 Native Core under QEMU
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
