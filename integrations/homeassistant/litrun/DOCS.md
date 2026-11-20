@@ -19,7 +19,7 @@ Run ultra-lightweight, hardware-accelerated local LLMs (Qwen 2.5, SmolLM2, Llama
 2. Click the three dots in the top-right corner and select **Repositories**.
 3. Add this repository URL:
    ```text
-   https://github.com/assassinaj602/litrun
+   https://github.com/tanjirookamado602/litrun
    ```
 4. Find **litrun Local AI Runtime** in the Add-on Store list and click **Install**.
 5. Once installed, configure your preferred model (default: `qwen2.5-0.5b`) under the **Configuration** tab.

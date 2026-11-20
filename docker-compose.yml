@@ -1,6 +1,6 @@
 services:
   litrun:
-    image: ghcr.io/assassinaj602/litrun:latest
+    image: ghcr.io/tanjirookamado602/litrun:latest
     build:
       context: .
       dockerfile: Dockerfile

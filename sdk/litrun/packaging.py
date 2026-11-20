@@ -32,7 +32,7 @@ Section: utils
 Priority: optional
 Architecture: {arch}
 Maintainer: assassinaj602 <assassinaj602@github.com>
-Homepage: https://github.com/assassinaj602/litrun
+Homepage: https://github.com/tanjirookamado602/litrun
 Description: Universal Lightweight Embedded Linux AI Runtime
  High-performance edge AI inference runtime for Raspberry Pi, Orange Pi,
  Jetson, and x86 single-board computers with hardware governor and zero cloud latency.

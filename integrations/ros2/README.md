@@ -18,7 +18,7 @@ In your ROS 2 workspace (e.g. `colcon_ws/`):
 
 ```bash
 cd ~/colcon_ws/src
-git clone https://github.com/assassinaj602/litrun.git
+git clone https://github.com/tanjirookamado602/litrun.git
 cd ~/colcon_ws
 
 # Install litrun dependencies

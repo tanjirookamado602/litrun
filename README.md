@@ -1,12 +1,12 @@
 # ⚡ litrun
 
-[![CI Matrix](https://github.com/assassinaj602/litrun/actions/workflows/ci.yml/badge.svg)](https://github.com/assassinaj602/litrun/actions)
-[![Release & Distribution](https://github.com/assassinaj602/litrun/actions/workflows/release.yml/badge.svg)](https://github.com/assassinaj602/litrun/releases)
+[![CI Matrix](https://github.com/tanjirookamado602/litrun/actions/workflows/ci.yml/badge.svg)](https://github.com/tanjirookamado602/litrun/actions)
+[![Release & Distribution](https://github.com/tanjirookamado602/litrun/actions/workflows/release.yml/badge.svg)](https://github.com/tanjirookamado602/litrun/releases)
 [![PyPI version](https://img.shields.io/pypi/v/litrun.svg?color=blue)](https://pypi.org/project/litrun/)
-[![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://assassinaj602.github.io/litrun)
+[![GitHub Pages](https://img.shields.io/badge/Docs%20%26%20Calculator-Live%20Demo-brightgreen.svg)](https://tanjirookamado602.github.io/litrun)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Supported SoCs](https://img.shields.io/badge/SoCs-BCM2711%20%7C%20BCM2712%20%7C%20RK3588%20%7C%20Jetson%20%7C%20RISC--V%20%7C%20x86__64-green.svg)](#hardware-support-matrix)
-[![GitHub release](https://img.shields.io/github/v/release/assassinaj602/litrun?color=orange)](https://github.com/assassinaj602/litrun/releases/tag/v0.9.0)
+[![GitHub release](https://img.shields.io/github/v/release/tanjirookamado602/litrun?color=orange)](https://github.com/tanjirookamado602/litrun/releases/tag/v0.9.0)
 
 > **Deploy any LLM to any embedded Linux device in one command.**  
 > A lightweight, universal open-source runtime that eliminates hardware fragmentation for on-device AI across Raspberry Pi, Orange Pi, industrial SoCs, and ARM64 / RISC-V edge boards.
@@ -21,7 +21,7 @@
 
 ### 1. Instant POSIX Bootstrap (No toolchains, no cmake)
 ```bash
-curl -sSL https://raw.githubusercontent.com/assassinaj602/litrun/main/scripts/install.sh | sh
+curl -sSL https://raw.githubusercontent.com/tanjirookamado602/litrun/main/scripts/install.sh | sh
 ```
 *Or via pip:*
 ```bash
@@ -279,12 +279,12 @@ Built-in tools:
 Run litrun as an official add-on directly inside Home Assistant OS:
 
 1. In Home Assistant, open **Settings** → **Add-ons** → **Add-on Store** → **Repositories**.
-2. Add: `https://github.com/assassinaj602/litrun`
+2. Add: `https://github.com/tanjirookamado602/litrun`
 3. Click **Install** on **litrun Local AI Runtime**.
 4. Point your Home Assistant Assist voice pipeline or OpenAI Conversation integration to `http://localhost:8080/v1`.
 
 See the complete [Home Assistant Integration Guide & Docker Compose](integrations/homeassistant/README.md).
-Try the interactive [Edge Memory Calculator](https://assassinaj602.github.io/litrun) to test hardware envelopes before deployment.
+Try the interactive [Edge Memory Calculator](https://tanjirookamado602.github.io/litrun) to test hardware envelopes before deployment.
 
 ---
 
@@ -501,7 +501,7 @@ Deploy `litrun` into edge container clusters, balenaOS, Kubernetes (K3s), or Doc
 
 ```bash
 # Pull and launch the Visual Web UI & OpenAI REST server:
-docker run -d -p 8080:8080 --name litrun ghcr.io/assassinaj602/litrun:latest
+docker run -d -p 8080:8080 --name litrun ghcr.io/tanjirookamado602/litrun:latest
 
 # Or launch via Docker Compose:
 docker compose up -d
@@ -511,7 +511,7 @@ Compose configuration (`docker-compose.yml`):
 ```yaml
 services:
   litrun:
-    image: ghcr.io/assassinaj602/litrun:latest
+    image: ghcr.io/tanjirookamado602/litrun:latest
     container_name: litrun
     restart: unless-stopped
     ports:
@@ -710,7 +710,7 @@ In addition to OpenAI-compatible `/v1/chat/completions`, `litrun serve` streams 
 
 ```bash
 # Clone the repository
-git clone https://github.com/assassinaj602/litrun.git
+git clone https://github.com/tanjirookamado602/litrun.git
 cd litrun
 
 # Build C Native Core and Shared Library

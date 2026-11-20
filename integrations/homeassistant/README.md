@@ -22,7 +22,7 @@ Deploy fully offline, local AI on your **Raspberry Pi 4, Pi 5, or Home Assistant
 1. Open Home Assistant → **Settings** → **Add-ons** → **Add-on Store**.
 2. Click the three dots (top right) → **Repositories** → Add:
    ```text
-   https://github.com/assassinaj602/litrun
+   https://github.com/tanjirookamado602/litrun
    ```
 3. Click on **litrun Local AI Runtime** and select **Install**.
 4. Start the add-on. The local OpenAI API will now be live on `http://homeassistant.local:8080/v1`.

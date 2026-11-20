@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/assassinaj602/litrun.git"
+    "url": "git+https://github.com/tanjirookamado602/litrun.git"
   },
   "keywords": [
     "edge-ai",
@@ -26,7 +26,7 @@
   "author": "Muhammad Assad Ullah",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/assassinaj602/litrun/issues"
+    "url": "https://github.com/tanjirookamado602/litrun/issues"
   },
   "homepage": "https://litrun.dev"
 }

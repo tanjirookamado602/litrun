@@ -1112,8 +1112,8 @@ curl http://localhost:8080/v1/chat/completions \\
   <footer>
     <div>⚡ litrun runtime • Lightweight Edge AI for ARM64 & Embedded Linux</div>
     <div>
-      <a href="https://github.com/assassinaj602/litrun" target="_blank">GitHub Repository</a> •
-      <a href="https://assassinaj602.github.io/litrun" target="_blank">Documentation</a> •
+      <a href="https://github.com/tanjirookamado602/litrun" target="_blank">GitHub Repository</a> •
+      <a href="https://tanjirookamado602.github.io/litrun" target="_blank">Documentation</a> •
       <a href="/v1/models" target="_blank">REST API Endpoint</a>
     </div>
   </footer>
